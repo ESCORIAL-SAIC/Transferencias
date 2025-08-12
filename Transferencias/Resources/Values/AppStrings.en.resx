@@ -1,0 +1,86 @@
+<root>
+    <resheader name="resmimetype">
+        <value>text/microsoft-resx</value>
+    </resheader>
+    <resheader name="version">
+        <value>1.3</value>
+    </resheader>
+    <resheader name="reader">
+        <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    </resheader>
+    <resheader name="writer">
+        <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    </resheader>
+    <data name="AlertErrorBlankField" xml:space="preserve">
+        <value>Fields cannot be left blank</value>
+    </data>
+    <data name="TestField" xml:space="preserve">
+        <value>English</value>
+    </data>
+    <data name="AlertErrorLabelNotFoundMessage" xml:space="preserve">
+        <value>Label not found.</value>
+    </data>
+    <data name="AlertErrorLoginBlankPassword" xml:space="preserve">
+        <value>A password must be entered</value>
+    </data>
+    <data name="AlertErrorLoginBlankUser" xml:space="preserve">
+        <value>A user must be entered</value>
+    </data>
+    <data name="AlertErrorLoginInvalidPassword" xml:space="preserve">
+        <value>Incorrect password</value>
+    </data>
+    <data name="AlertInfoTitle" xml:space="preserve">
+        <value>Info</value>
+    </data>
+    <data name="AlertRestrictedAccessPrompt" xml:space="preserve">
+        <value>Enter password:</value>
+    </data>
+    <data name="AlertRestrictedAccessTitle" xml:space="preserve">
+        <value>Restricted access</value>
+    </data>
+    <data name="AlertSuccessConfigSavedMessage" xml:space="preserve">
+        <value>Settings saved successfuly</value>
+    </data>
+    <data name="NotLoadedSetting" xml:space="preserve">
+        <value>Configuration not loaded</value>
+    </data>
+    <data name="AlertErrorApiUrlConfig" xml:space="preserve">
+        <value>The API URL was not configured.</value>
+    </data>
+    <data name="AlertErrorDepoConfig" xml:space="preserve">
+        <value>The deposits were not configured correctly</value>
+    </data>
+    <data name="AlertErrorDepoGet" xml:space="preserve">
+        <value>An error occurred while retrieving saved deposits.</value>
+    </data>
+    <data name="AlertErrorDepoLoad" xml:space="preserve">
+        <value>An error occurred while loading the deposits.</value>
+    </data>
+    <data name="AlertErrorInitialSettings" xml:space="preserve">
+        <value>Initial settings were not loaded.</value>
+    </data>
+    <data name="AlertErrorLoggedUserNullMessage" xml:space="preserve">
+        <value>Failed to load logged in user</value>
+    </data>
+    <data name="AlertErrorLoginSector" xml:space="preserve">
+        <value>The user has not been correctly assigned the sector. Contact the IT sector</value>
+    </data>
+    <data name="AlertErrorNullResponse" xml:space="preserve">
+        <value>The response was null</value>
+    </data>
+    <data name="AlertErrorSavingSettings" xml:space="preserve">
+        <value>An error occurred while saving the settings, if the error persists, contact IT.</value>
+    </data>
+    <data name="AlertOkButton" xml:space="preserve">
+        <value>OK</value>
+    </data>
+    <data name="AlertSuccessLoginMessage" xml:space="preserve">
+        <value>Login successful\nUser: {0}.\nName: {1}</value>
+    </data>
+    <data name="AlertSuccessTitle" xml:space="preserve">
+        <value>Operation performed successfully</value>
+    </data>
+    <data name="AlertSuccessTransferenceMessage" xml:space="preserve">
+        <value>The transfer of supplies request was successfully uploaded</value>
+    </data>
+</root>

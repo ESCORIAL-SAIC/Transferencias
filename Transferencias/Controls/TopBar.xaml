@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:local="clr-namespace:Transferencias.Controls"
+             xmlns:m="clr-namespace:UraniumUI.Icons.MaterialIcons;assembly=UraniumUI.Icons.MaterialIcons"
+             x:Class="Transferencias.Controls.TopBar">
+    <Grid Grid.Row="0" Padding="0,0">
+        <BoxView
+            BackgroundColor="{StaticResource Primary}"
+            CornerRadius="0,0,10,10"
+            HeightRequest="65" />
+        <Grid
+            ColumnDefinitions="Auto,*,Auto"
+            RowDefinitions="2*,2*">
+            <Image
+                Grid.Column="0"
+                Grid.Row="0"
+                Grid.RowSpan="2"
+                Margin="10,0,10,10"
+                Aspect="AspectFit"
+                HeightRequest="50"
+                HorizontalOptions="Start"
+                Source="logo_trans_blanco_small.png"
+                WidthRequest="90" />
+            <Label
+                x:Name="UsernameLabel"
+                TextColor="{StaticResource White}"
+                Grid.Column="1"
+                Grid.Row="0"
+                HorizontalOptions="End"
+                VerticalOptions="End"
+                IsVisible="{Binding Username, Source={RelativeSource AncestorType={x:Type local:TopBar}}}"
+                Text="" />
+            <Label
+                x:Name="CompleteNameLabel"
+                TextColor="{StaticResource White}"
+                Grid.Column="1"
+                Grid.Row="1"
+                HorizontalOptions="End"
+                IsVisible="{Binding CompleteName, Source={RelativeSource AncestorType={x:Type local:TopBar}}}"
+                Text="" />
+            <Button
+                Grid.Column="2"
+                Grid.Row="0"
+                Grid.RowSpan="2"
+                x:Name="LogoutButton"
+                BackgroundColor="{StaticResource Primary}"
+                IsVisible="{Binding UseLogoutButton, Source={RelativeSource AncestorType={x:Type local:TopBar}}}"
+                Pressed="LogoutButton_OnPressed"
+                HorizontalOptions="End">
+                <Button.ImageSource>
+                    <FontImageSource FontFamily="MaterialRegular" Glyph="{x:Static m:MaterialRegular.Logout}" />
+                </Button.ImageSource>
+            </Button>
+        </Grid>
+    </Grid>
+</ContentView>

@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="Transferencias.Views.Almacen.AlmacenSolicitudesView"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:m="clr-namespace:UraniumUI.Icons.MaterialIcons;assembly=UraniumUI.Icons.MaterialIcons"
+    xmlns:controls="clr-namespace:Transferencias.Controls"
+    Shell.NavBarIsVisible="False">
+    <Grid Padding="0,0" RowDefinitions="Auto,*">
+        <controls:TopBar
+            Grid.Row="0"
+            UseLogoutButton="True"
+            ShowUserData="True" />
+        <Grid
+            Grid.Row="1"
+            Padding="20,10"
+            RowDefinitions="Auto,Auto,Auto,6*,*">
+            <Label
+                Grid.Row="0"
+                Margin="0,10,0,10"
+                FontAttributes="Bold"
+                FontSize="Subtitle"
+                Text="Solicitudes de transferencia"
+                TextColor="{AppThemeBinding Light={StaticResource Gray500},
+                                            Dark={StaticResource Gray200}}" />
+            <Label
+                Grid.Row="1"
+                Margin="14,0,0,10"
+                FontAttributes="Bold"
+                FontSize="Caption"
+                Text="Estado"
+                TextColor="{AppThemeBinding Light={StaticResource Gray500},
+                                            Dark={StaticResource Gray200}}" />
+            <Border Grid.Row="2" StrokeShape="RoundRectangle 10,10,10,10">
+                <Grid ColumnDefinitions="*,Auto">
+                    <Picker
+                        x:Name="EstadosPicker"
+                        Title="Seleccione un estado..."
+                        Grid.Column="0"
+                        Grid.ColumnSpan="2"
+                        Margin="10,0,0,0"
+                        HeightRequest="40"
+                        HorizontalOptions="FillAndExpand"
+                        ItemDisplayBinding="{Binding Descripcion}"
+                        ItemsSource="{Binding Estados}"
+                        SelectedIndexChanged="EstadosPicker_OnSelectedIndexChanged" />
+                    <Image
+                        Grid.Column="1"
+                        Margin="0,0,10,0"
+                        ZIndex="+1">
+                        <Image.Source>
+                            <FontImageSource
+                                FontFamily="MaterialRegular"
+                                Glyph="{x:Static m:MaterialRegular.Arrow_drop_down}"
+                                Color="{StaticResource Primary}" />
+                        </Image.Source>
+                    </Image>
+                </Grid>
+            </Border>
+            <ListView
+                x:Name="ItemsListView"
+                Grid.Row="3"
+                Margin="0,20,0,0"
+                ItemTapped="ItemsListView_ItemTapped"
+                ItemsSource="{Binding SolicitudesTransferencias}"
+                SelectionMode="Single"
+                SeparatorColor="Transparent"
+                VerticalOptions="FillAndExpand"
+                VerticalScrollBarVisibility="Always">
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <ViewCell>
+                            <Grid
+                                Margin="0,5"
+                                Padding="0"
+                                HeightRequest="42"
+                                VerticalOptions="FillAndExpand">
+                                <BoxView
+                                    BackgroundColor="{AppThemeBinding Light={StaticResource Gray100},
+                                                                      Dark={StaticResource Gray600}}"
+                                    CornerRadius="10"
+                                    HorizontalOptions="FillAndExpand"
+                                    VerticalOptions="FillAndExpand"
+                                    ZIndex="-1" />
+                                <Grid ColumnSpacing="10">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="15" />
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <BoxView
+                                        Grid.RowSpan="2"
+                                        BackgroundColor="{Binding Estado.Semaforo}"
+                                        CornerRadius="10,0,10,0"
+                                        HeightRequest="42"
+                                        WidthRequest="15" />
+                                    <Label
+                                        Grid.Row="0"
+                                        Grid.Column="1"
+                                        FontAttributes="Bold"
+                                        Text="{Binding NombreSolicitud}"
+                                        VerticalOptions="Center" />
+                                    <Label
+                                        Grid.Row="0"
+                                        Grid.Column="2"
+                                        FontSize="Default"
+                                        Text="{Binding Fecha, StringFormat='{}{0:dd/MM/yyyy}'}"
+                                        VerticalOptions="Center" />
+                                    <Label
+                                        Grid.Row="1"
+                                        Grid.Column="3"
+                                        FontSize="12"
+                                        Text="{Binding Estado.Codigo}"
+                                        VerticalOptions="Center" />
+                                    <Label
+                                        Grid.Row="1"
+                                        Grid.Column="4"
+                                        FontSize="12"
+                                        Text="{Binding Usuario.Codigo}"
+                                        VerticalOptions="Center" />
+                                </Grid>
+                            </Grid>
+                        </ViewCell>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+            <Button
+                x:Name="UpdateButton"
+                Grid.Row="4"
+                HeightRequest="60"
+                HorizontalOptions="End"
+                Pressed="UpdateButton_Pressed"
+                VerticalOptions="End"
+                WidthRequest="60">
+                <Button.ImageSource>
+                    <FontImageSource FontFamily="MaterialRegular" Glyph="{x:Static m:MaterialRegular.Refresh}" />
+                </Button.ImageSource>
+            </Button>
+        </Grid>
+    </Grid>
+</ContentPage>

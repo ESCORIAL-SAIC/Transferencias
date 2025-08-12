@@ -1,0 +1,175 @@
+using Camera.MAUI.ZXingHelper;
+using System.Collections.ObjectModel;
+using System.Net;
+using Transferencias.Controllers;
+using Transferencias.Models;
+using Transferencias.Resources.Values;
+using Timer = System.Timers.Timer;
+
+namespace Transferencias.Views.Produccion;
+
+public partial class ProduccionCargaSolicitudView
+{
+    private readonly ObservableCollection<Etiqueta> _etiquetasLeidas = [];
+    private Timer _debounceTimer = new();
+    private bool _isReading;
+    public ProduccionCargaSolicitudView()
+    {
+        InitializeComponent();
+        ItemsListView.ItemsSource = _etiquetasLeidas;
+    }
+
+    private async void CameraView_CamerasLoaded(object sender, EventArgs e) => await LoadCameras();
+    private void CameraView_BarcodeDetected(object sender, BarcodeEventArgs args) => OnBarcodeDetected(args);
+    private async void ConfirmarButton_OnPressed(object? sender, EventArgs e) => await NewRequest();
+    private async void EliminarSwipeItem_OnInvoked(object? sender, EventArgs e) => await MakeItemInactive(sender);
+
+    private async Task NewRequest()
+    {
+        try
+        {
+            Config.ShowLoadingPopup(this);
+            if (!_etiquetasLeidas.Any())
+                return;
+            var items = new ObservableCollection<ItemSolicitudTransferencia>(
+                _etiquetasLeidas.Select(
+                    etiqueta => new ItemSolicitudTransferencia()
+                    {
+                        ProductoId = etiqueta.Producto!.Id,
+                        Cantidad = etiqueta.Cantidad,
+                        UnidadMedidaId = new Guid(AppStrings.UMUnId),
+                        Pickeado = false,
+                        EstadoId = Estado.Tipo.Activo
+                    }).ToList()
+                );
+            var loggedUser = await Config.GetLoggedUser();
+            if (loggedUser is null)
+            {
+                await DisplayAlert(AppStrings.AlertErrorTitle, AppStrings.AlertErrorLoggedUserNullMessage, AppStrings.AlertOkButton);
+                return;
+            }
+            var solicitud = new SolicitudTransferencia()
+            {
+                EstadoId = Estado.Tipo.Activo,
+                UsuarioId = loggedUser.Id,
+                ItemsSolicitudTransferencia = items
+            };
+
+            var statusCode = await SolicitudTransferenciaController.NewAsync(solicitud);
+            if (statusCode == HttpStatusCode.Created)
+            {
+                await DisplayAlert(AppStrings.AlertSuccessTitle,
+                    AppStrings.AlertSuccessTransferenceMessage, AppStrings.AlertOkButton);
+                await Navigation.PopModalAsync();
+            }
+            else
+            {
+                await DisplayAlert(AppStrings.AlertErrorTitle, statusCode.Value.ToString(), AppStrings.AlertOkButton);
+            }
+        }
+        catch (Exception exception)
+        {
+            await DisplayAlert(AppStrings.AlertErrorTitle, exception.Message, AppStrings.AlertOkButton);
+        }
+        finally
+        {
+            Config.CloseLoadingPopup();
+        }
+    }
+    private async Task MakeItemInactive(object? sender)
+    {
+        try
+        {
+            Config.ShowLoadingPopup(this);
+            if (sender is not SwipeItem item)
+                return;
+            if (item.BindingContext is not Etiqueta etiqueta)
+                return;
+            _etiquetasLeidas.Remove(etiqueta);
+        }
+        catch (Exception ex)
+        {
+            await Message.Error(this, ex.Message);
+        }
+        finally
+        {
+            Config.CloseLoadingPopup();
+        }
+    }
+    private async Task LoadCameras()
+    {
+        try
+        {
+            if (CameraView.Cameras.Count <= 0)
+                return;
+            CameraView.Camera = CameraView.Cameras[0];
+            MainThread.BeginInvokeOnMainThread(Action);
+
+            async void Action()
+            {
+                await CameraView.StopCameraAsync();
+                await CameraView.StartCameraAsync();
+            }
+        }
+        catch (Exception ex)
+        {
+            await Message.Error(this, ex.Message);
+        }
+        finally
+        {
+            Config.CloseLoadingPopup();
+        }
+    }
+    private void OnBarcodeDetected(BarcodeEventArgs args)
+    {
+        if (_isReading)
+            return;
+        _isReading = true;
+        MainThread.BeginInvokeOnMainThread(Action);
+        _debounceTimer = new Timer(5000);
+        _debounceTimer.Elapsed += (_, _) =>
+        {
+            _isReading = false;
+        };
+        _debounceTimer.AutoReset = false;
+        _debounceTimer.Enabled = true;
+        async void Action()
+        {
+            BarcodeResult.Text = $"{args.Result[0].BarcodeFormat}: {args.Result[0].Text}";
+            try
+            {
+                Config.ShowLoadingPopup(this);
+                var etiqueta = await EtiquetaController.GetByCodeAsync(args.Result[0].Text);
+                if (etiqueta is null)
+                {
+                    await DisplayAlert(AppStrings.AlertErrorTitle, AppStrings.AlertErrorLabelNotFoundMessage, AppStrings.AlertOkButton);
+                    return;
+                }
+                etiqueta.Producto = await ProductoController.GetByIdAsync(etiqueta.ProductoId);
+                var origin = await Config.GetOrigin();
+                var hasStock = await Fun.CheckStockByDepoAsync(etiqueta.Producto!.Id, origin!.Id, etiqueta.Cantidad);
+                if (!hasStock)
+                {
+                    var continua = await Message.Confirmation(this,
+                        "El stock contabilizado en el almacén de origen es menor al solicitado, lo cual podría demorar la transferencia. Desea continuar de todas formas?");
+                    if (continua)
+                        _etiquetasLeidas.Add(etiqueta);
+                }
+                else
+                    _etiquetasLeidas.Add(etiqueta);
+            }
+            catch (HttpRequestException)
+            {
+                await DisplayAlert(AppStrings.AlertErrorTitle, AppStrings.AlertErrorLabelNotFoundMessage, AppStrings.AlertOkButton);
+            }
+            catch (Exception ex)
+            {
+                await DisplayAlert(AppStrings.AlertErrorTitle, ex.Message, AppStrings.AlertOkButton);
+            }
+            finally
+            {
+                Config.CloseLoadingPopup();
+            }
+        }
+    }
+}

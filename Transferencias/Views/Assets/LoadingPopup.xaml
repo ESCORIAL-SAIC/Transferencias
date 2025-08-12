@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<toolkit:Popup
+    x:Class="Transferencias.Views.Assets.LoadingPopup"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit">
+    <VerticalStackLayout
+        xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+        Padding="20"
+        BackgroundColor="{AppThemeBinding Light={StaticResource Gray100},
+                                          Dark={StaticResource Gray950}}"
+        HorizontalOptions="Center"
+        VerticalOptions="Center">
+
+        <ActivityIndicator
+            HeightRequest="50"
+            IsRunning="True"
+            WidthRequest="50" />
+
+        <Label
+            FontSize="Medium"
+            HorizontalOptions="Center"
+            Text="Cargando..."
+            TextColor="{AppThemeBinding Light={StaticResource Gray950},
+                                        Dark={StaticResource Gray100}}" />
+
+    </VerticalStackLayout>
+</toolkit:Popup>

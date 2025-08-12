@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="Transferencias.Views.LoginView"
+    x:DataType="local:LoginView"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:m="clr-namespace:UraniumUI.Icons.MaterialIcons;assembly=UraniumUI.Icons.MaterialIcons"
+    xmlns:local="clr-namespace:Transferencias.Views"
+    BackgroundImageSource="background_login.png">
+    <VerticalStackLayout
+        Padding="20,305"
+        Spacing="15"
+        VerticalOptions="Center">
+        <Label Padding="26,0,0,15" FontSize="Subtitle">
+            <Label.FormattedText>
+                <FormattedString>
+                    <Span
+                        FontAttributes="Bold"
+                        Text="{Binding LoginEntryText}"
+                        TextColor="{StaticResource PrimaryDark}" />
+                </FormattedString>
+            </Label.FormattedText>
+        </Label>
+        <Border
+            Padding="10,3"
+            Stroke="{StaticResource Primary}"
+            StrokeShape="RoundRectangle 30,30,30,30"
+            StrokeThickness="2"
+            WidthRequest="350">
+            <Entry x:Name="UserEntry" Placeholder="{Binding PlaceholderUserEntryText}" />
+        </Border>
+        <Border
+            Padding="10,3"
+            Stroke="{StaticResource Primary}"
+            StrokeShape="RoundRectangle 30,30,30,30"
+            StrokeThickness="2"
+            WidthRequest="350">
+            <Entry
+                x:Name="PasswordEntry"
+                IsPassword="True"
+                Placeholder="{Binding PlaceholderPasswordEntryText}" />
+        </Border>
+        <StackLayout Margin="0,30,0,0" Spacing="10">
+            <Button
+                x:Name="SubmitButton"
+                Clicked="SubmitButton_Clicked"
+                CornerRadius="30"
+                FontAttributes="Bold"
+                FontSize="Subtitle"
+                WidthRequest="200">
+                <Button.ImageSource>
+                    <FontImageSource FontFamily="MaterialRegular" Glyph="{x:Static m:MaterialRegular.Login}" />
+                </Button.ImageSource>
+                <Button.Text>
+                    <Binding Path="LoginButtonText" />
+                </Button.Text>
+            </Button>
+            <Button
+                x:Name="SettingsButton"
+                BackgroundColor="{StaticResource Gray300}"
+                Clicked="SettingsButton_OnClicked"
+                CornerRadius="25"
+                FontSize="8"
+                HeightRequest="50"
+                WidthRequest="50">
+                <Button.ImageSource>
+                    <FontImageSource FontFamily="MaterialRegular" Glyph="{x:Static m:MaterialRegular.Settings}" />
+                </Button.ImageSource>
+            </Button>
+        </StackLayout>
+        <Label
+            x:Name="AppVersionLabel"
+            Margin="10"
+            HorizontalOptions="Center"
+            TextColor="{AppThemeBinding Light={StaticResource Gray200},
+                                        Dark={StaticResource Gray500}}"
+            Text="{Binding AppVersionText}"
+            VerticalOptions="End">
+            <Label.GestureRecognizers>
+                <TapGestureRecognizer Tapped="TapGestureRecognizer_Tapped" />
+            </Label.GestureRecognizers>
+        </Label>
+    </VerticalStackLayout>
+</ContentPage>

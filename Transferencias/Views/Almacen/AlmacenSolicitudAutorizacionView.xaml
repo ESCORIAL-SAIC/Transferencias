@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="Transferencias.Views.Almacen.AlmacenSolicitudAutorizacionView"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:controls="clr-namespace:Transferencias.Controls"
+    Shell.NavBarIsVisible="False">
+    <Grid Padding="0,0" RowDefinitions="Auto,15*,*">
+        <controls:TopBar
+            Grid.Row="0"
+            UseLogoutButton="True"
+            ShowUserData="True" />
+        <Grid
+            Grid.Row="1"
+            Padding="20,10"
+            RowDefinitions="Auto,Auto,Auto,*"
+            RowSpacing="10">
+            <Image
+                x:Name="QrCodeImage"
+                Grid.Row="0"
+                HeightRequest="200"
+                HorizontalOptions="Center"
+                WidthRequest="200" />
+            <BoxView
+                Grid.Row="1"
+                Grid.RowSpan="3"
+                Margin="-20,-5"
+                BackgroundColor="{StaticResource Primary}"
+                HorizontalOptions="FillAndExpand"
+                VerticalOptions="Fill"
+                ZIndex="-1" />
+            <Label
+                x:Name="TransferenciaNombreLabel"
+                Grid.Row="1"
+                FontAttributes="Bold"
+                FontSize="Subtitle"
+                Text="{Binding SolicitudTransferencia.NombreSolicitud}"
+                TextColor="{StaticResource Gray100}" />
+            <Label
+                Grid.Row="2"
+                FontAttributes="Bold"
+                FontSize="Subtitle"
+                Text="Items:"
+                TextColor="{StaticResource Gray100}" />
+            <ListView
+                x:Name="ItemsListView"
+                Grid.Row="3"
+                Margin="0,20,0,0"
+                ItemsSource="{Binding Transferencia.ItemsTransferencia}"
+                SelectionMode="Single"
+                SeparatorColor="Transparent"
+                VerticalOptions="FillAndExpand"
+                VerticalScrollBarVisibility="Always">
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <ViewCell>
+                            <Grid
+                                Margin="0,5"
+                                Padding="0"
+                                HeightRequest="42"
+                                VerticalOptions="FillAndExpand">
+                                <BoxView
+                                    BackgroundColor="{AppThemeBinding Light={StaticResource Gray100},
+                                                                      Dark={StaticResource Gray600}}"
+                                    CornerRadius="10"
+                                    HorizontalOptions="FillAndExpand"
+                                    VerticalOptions="FillAndExpand"
+                                    ZIndex="-1" />
+                                <Grid Padding="5,0,5,0" ColumnSpacing="10">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition />
+                                    </Grid.RowDefinitions>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="3*" />
+                                        <ColumnDefinition Width="5*" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <Label
+                                        Grid.Column="0"
+                                        FontAttributes="Bold"
+                                        Text="{Binding Producto.Codigo}"
+                                        VerticalOptions="Center" />
+                                    <Label
+                                        Grid.Column="1"
+                                        FontSize="Default"
+                                        Text="{Binding Producto.Descripcion}"
+                                        VerticalOptions="Center" />
+                                    <Label
+                                        Grid.Column="2"
+                                        FontAttributes="Bold"
+                                        FontSize="Subtitle"
+                                        Text="{Binding Cantidad}"
+                                        VerticalOptions="Center" />
+                                </Grid>
+                            </Grid>
+                        </ViewCell>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+        </Grid>
+    </Grid>
+</ContentPage>

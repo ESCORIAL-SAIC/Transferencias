@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Shell
+    x:Class="Transferencias.AppShell"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:almacen="clr-namespace:Transferencias.Views.Almacen"
+    xmlns:m="clr-namespace:UraniumUI.Icons.MaterialIcons;assembly=UraniumUI.Icons.MaterialIcons"
+    xmlns:produccion="clr-namespace:Transferencias.Views.Produccion"
+    xmlns:views="clr-namespace:Transferencias.Views"
+    Title="Transferencias"
+    FlyoutBehavior="Disabled">
+
+    <TabBar Route="Login">
+        <ShellContent ContentTemplate="{DataTemplate views:LoginView}" />
+    </TabBar>
+
+    <TabBar Route="Almacen">
+        <ShellContent
+            Title="Solicitudes"
+            ContentTemplate="{DataTemplate almacen:AlmacenSolicitudesView}"
+            Icon="{FontImageSource FontFamily=MaterialRegular,
+                                   Glyph={x:Static m:MaterialRegular.Feed}}" />
+        <ShellContent
+            Title="Transferencias"
+            ContentTemplate="{DataTemplate almacen:AlmacenTransferenciasView}"
+            Icon="{FontImageSource FontFamily=MaterialRegular,
+                                   Glyph={x:Static m:MaterialRegular.Compare_arrows}}" />
+    </TabBar>
+
+    <TabBar Route="AutorizarTransferencia">
+        <ShellContent Title="Solicitar autorizacion" ContentTemplate="{DataTemplate almacen:AlmacenSolicitudAutorizacionView}" />
+    </TabBar>
+
+    <TabBar Route="Produccion">
+        <ShellContent
+            Title="Solicitudes"
+            ContentTemplate="{DataTemplate produccion:ProduccionSolicitudesView}"
+            Icon="{FontImageSource FontFamily=MaterialRegular,
+                                   Glyph={x:Static m:MaterialRegular.Feed}}" />
+        <ShellContent
+            Title="Autorizar"
+            ContentTemplate="{DataTemplate produccion:ProduccionAutorizarTransferenciaView}"
+            Icon="{FontImageSource FontFamily=MaterialRegular,
+                                   Glyph={x:Static m:MaterialRegular.Check}}" />
+    </TabBar>
+
+    <TabBar Route="ProduccionNuevaSolicitud">
+        <ShellContent Title="Nueva solicitud" ContentTemplate="{DataTemplate produccion:ProduccionCargaSolicitudView}" />
+    </TabBar>
+
+    <TabBar Route="Configuraciones">
+        <ShellContent Title="Configuraciones" ContentTemplate="{DataTemplate views:SettingsView}" />
+    </TabBar>
+
+</Shell>

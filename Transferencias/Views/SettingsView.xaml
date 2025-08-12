@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:DataType="local:SettingsView"
+    xmlns:local="clr-namespace:Transferencias.Views"
+    x:Class="Transferencias.Views.SettingsView"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:m="clr-namespace:UraniumUI.Icons.MaterialIcons;assembly=UraniumUI.Icons.MaterialIcons"
+    Title="SettingsView">
+    <Grid Padding="20,10" RowDefinitions="*,Auto,Auto">
+        <VerticalStackLayout Grid.Row="0" Spacing="10">
+            <Border
+                Padding="10,3"
+                StrokeShape="RoundRectangle 10,10,10,10"
+                StrokeThickness="1">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="50" />
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+                    <Label
+                        Grid.Column="0"
+                        FontAttributes="Bold"
+                        Text="{Binding ApiUrlLabel}"
+                        VerticalOptions="Center" />
+                    <Entry
+                        x:Name="ApiUrlEntry"
+                        Grid.Column="1"
+                        Placeholder="{Binding ApiUrlPlaceholderEntry}" />
+                </Grid>
+            </Border>
+            <Border
+                Padding="10,3"
+                StrokeShape="RoundRectangle 10,10,10,10"
+                StrokeThickness="1">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="110" />
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+                    <Label
+                        Grid.Column="0"
+                        FontAttributes="Bold"
+                        Text="{Binding LoggedUserIdLabel}"
+                        VerticalOptions="Center" />
+                    <Entry
+                        x:Name="LoggedUserIdEntry"
+                        Grid.Column="1"
+                        IsEnabled="False"
+                        Placeholder="{Binding LoggedUserIdPlaceholderEntry}" />
+                </Grid>
+            </Border>
+            <Border StrokeShape="RoundRectangle 10,10,10,10">
+                <Grid ColumnDefinitions="*,Auto">
+                    <Picker
+                        x:Name="DepositoOrigenPicker"
+                        Title="{Binding OriginDepoTitle}"
+                        Grid.Column="0"
+                        Grid.ColumnSpan="2"
+                        Margin="10,0,0,0"
+                        HorizontalOptions="FillAndExpand"
+                        ItemDisplayBinding="{Binding Nombre}"
+                        ItemsSource="{Binding Depositos}" />
+                    <Image
+                        Grid.Column="1"
+                        Margin="0,0,10,0"
+                        ZIndex="+1">
+                        <Image.Source>
+                            <FontImageSource
+                                FontFamily="MaterialRegular"
+                                Glyph="{x:Static m:MaterialRegular.Arrow_drop_down}"
+                                Color="{StaticResource Primary}" />
+                        </Image.Source>
+                    </Image>
+                </Grid>
+            </Border>
+            <Border StrokeShape="RoundRectangle 10,10,10,10">
+                <Grid ColumnDefinitions="*,Auto">
+                    <Picker
+                        x:Name="DepositoDestinoPicker"
+                        Title="{Binding DestinationDepoTitle}"
+                        Grid.Column="0"
+                        Grid.ColumnSpan="2"
+                        Margin="10,0,0,0"
+                        HorizontalOptions="FillAndExpand"
+                        ItemDisplayBinding="{Binding Nombre}"
+                        ItemsSource="{Binding Depositos}" />
+                    <Image
+                        Grid.Column="1"
+                        Margin="0,0,10,0"
+                        ZIndex="+1">
+                        <Image.Source>
+                            <FontImageSource
+                                FontFamily="MaterialRegular"
+                                Glyph="{x:Static m:MaterialRegular.Arrow_drop_down}"
+                                Color="{StaticResource Primary}" />
+                        </Image.Source>
+                    </Image>
+                </Grid>
+            </Border>
+        </VerticalStackLayout>
+        <Label
+            x:Name="AppVersionLabel"
+            Grid.Row="1"
+            Text="{Binding AppStringVersionLabel}"
+            Margin="10"
+            HorizontalOptions="Center"
+            VerticalOptions="End" />
+        <Button
+            x:Name="SaveSettingsButton"
+            Grid.Row="2"
+            Clicked="SaveSettingsButton_OnClicked"
+            Text="{Binding SaveButtonText}"
+            VerticalOptions="End"
+            WidthRequest="200" />
+    </Grid>
+</ContentPage>

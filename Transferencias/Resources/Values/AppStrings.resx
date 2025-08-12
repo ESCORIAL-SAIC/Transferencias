@@ -1,0 +1,225 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="AlertErrorLabelNotFoundMessage" xml:space="preserve">
+    <value>Etiqueta no encontrada</value>
+  </data>
+  <data name="AlertErrorLoggedUserNullMessage" xml:space="preserve">
+    <value>No se pudo cargar el usuario logueado</value>
+  </data>
+  <data name="AlertErrorLoginBlankPassword" xml:space="preserve">
+    <value>Se debe ingresar una constreña</value>
+  </data>
+  <data name="AlertErrorLoginBlankUser" xml:space="preserve">
+    <value>Se debe ingresar un usuario</value>
+  </data>
+  <data name="AlertErrorLoginInvalidPassword" xml:space="preserve">
+    <value>Contraseña incorrecta</value>
+  </data>
+  <data name="AlertErrorLoginSector" xml:space="preserve">
+    <value>El usuario no tiene asignado correctamente el sector.\nContactar a sistemas</value>
+  </data>
+  <data name="AlertErrorTitle" xml:space="preserve">
+    <value>Error</value>
+  </data>
+  <data name="AlertOkButton" xml:space="preserve">
+    <value>Ok</value>
+  </data>
+  <data name="AlertSuccessLoginMessage" xml:space="preserve">
+    <value>Inicio de sesión correcto\nUsuario: {0}.\nNombre: {1}</value>
+  </data>
+  <data name="AlertSuccessTitle" xml:space="preserve">
+    <value>Operacion realizada correctamente</value>
+  </data>
+  <data name="AlertSuccessTransferenceMessage" xml:space="preserve">
+    <value>Se cargó correctamente la solicitud de transferencia de insumos</value>
+  </data>
+  <data name="SectorCodAlm25M" xml:space="preserve">
+    <value>ALM25M</value>
+  </data>
+  <data name="SectorCodPrd25M" xml:space="preserve">
+    <value>PRD25M</value>
+  </data>
+  <data name="UMUnId" xml:space="preserve">
+    <value>76c697a6-3dae-11d5-b059-004854841c8a</value>
+  </data>
+  <data name="ViewAdrAlm25M" xml:space="preserve">
+    <value>////Almacen</value>
+  </data>
+  <data name="ViewAdrPrd25M" xml:space="preserve">
+    <value>////Produccion</value>
+  </data>
+  <data name="AlertRestrictedAccessTitle" xml:space="preserve">
+    <value>Acceso restringido</value>
+  </data>
+  <data name="AlertRestrictedAccessPrompt" xml:space="preserve">
+    <value>Ingrese contraseña:</value>
+  </data>
+  <data name="ConfigurationViewPassword" xml:space="preserve">
+    <value>9278</value>
+  </data>
+  <data name="AlertSuccessConfigSavedMessage" xml:space="preserve">
+    <value>Configuraciones guardadas correctamente</value>
+  </data>
+  <data name="ApiUrlKey" xml:space="preserve">
+    <value>apiUrl</value>
+  </data>
+  <data name="LoggedUserIdKey" xml:space="preserve">
+    <value>loggedUser</value>
+  </data>
+  <data name="AlertErrorBlankField" xml:space="preserve">
+    <value>No se pueden dejar campos en blanco</value>
+  </data>
+  <data name="AlertErrorSavingSettings" xml:space="preserve">
+    <value>Se produjo un error guardando las configuraciones, si el error persiste, contactar a sistemas.</value>
+  </data>
+  <data name="NotLoadedSetting" xml:space="preserve">
+    <value>Configuracion no cargada</value>
+  </data>
+  <data name="AlertErrorNullResponse" xml:space="preserve">
+    <value>El response fue nulo</value>
+  </data>
+  <data name="AlertInfoTitle" xml:space="preserve">
+    <value>Información</value>
+  </data>
+  <data name="OriginDepositIdKey" xml:space="preserve">
+    <value>originDepositId</value>
+  </data>
+  <data name="DestinationDepositIdKey" xml:space="preserve">
+    <value>destinationDepositId</value>
+  </data>
+  <data name="TestField" xml:space="preserve">
+    <value>Default</value>
+  </data>
+  <data name="AlertErrorInitialSettings" xml:space="preserve">
+    <value>No se cargaron las configuraciones iniciales.</value>
+  </data>
+  <data name="AlertErrorApiUrlConfig" xml:space="preserve">
+    <value>No se cargó la URL de la API.</value>
+  </data>
+  <data name="AlertErrorDepoConfig" xml:space="preserve">
+    <value>No se configuraron los depósitos correctamente</value>
+  </data>
+  <data name="AlertErrorDepoLoad" xml:space="preserve">
+    <value>Se produjo un error al cargar los depósitos.</value>
+  </data>
+  <data name="AlertErrorDepoGet" xml:space="preserve">
+    <value>Se produjo un error obteniendo los depositos guardados.</value>
+  </data>
+</root>
