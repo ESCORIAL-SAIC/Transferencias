@@ -214,5 +214,8 @@ public partial class ProduccionCargaSolicitudView
         base.OnDisappearing();
     }
 
+    private void Codigo_Completed(object sender, EventArgs e)
+    {
 
+    }
 }
