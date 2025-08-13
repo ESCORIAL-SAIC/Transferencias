@@ -5,12 +5,14 @@ using System.Threading.Tasks;
 using Transferencias.Controllers;
 using Transferencias.Models;
 using Transferencias.Resources.Values;
+using Transferencias.Services;
 using Timer = System.Timers.Timer;
 
 namespace Transferencias.Views.Produccion;
 
 public partial class ProduccionCargaSolicitudView
 {
+    private readonly EtiquetaService _etiquetaService = new();
     private readonly ObservableCollection<Etiqueta> _etiquetasLeidas = [];
     private Timer _debounceTimer = new();
     private bool _isReading;
@@ -137,44 +139,40 @@ public partial class ProduccionCargaSolicitudView
         async void Action()
         {
             BarcodeResult.Text = $"{args.Result[0].BarcodeFormat}: {args.Result[0].Text}";
-            try
-            {
-                Config.ShowLoadingPopup(this);
-                var etiqueta = await EtiquetaController.GetByCodeAsync(args.Result[0].Text);
-                if (etiqueta is null)
-                {
-                    await DisplayAlert(AppStrings.AlertErrorTitle, AppStrings.AlertErrorLabelNotFoundMessage, AppStrings.AlertOkButton);
-                    return;
-                }
-                etiqueta.Producto = await ProductoController.GetByIdAsync(etiqueta.ProductoId);
-                var origin = await Config.GetOrigin();
-                var hasStock = await Fun.CheckStockByDepoAsync(etiqueta.Producto!.Id, origin!.Id, etiqueta.Cantidad);
-                if (!hasStock)
-                {
-                    var continua = await Message.Confirmation(this,
-                        "El stock contabilizado en el almacén de origen es menor al solicitado, lo cual podría demorar la transferencia. Desea continuar de todas formas?");
-                    if (continua)
-                        _etiquetasLeidas.Add(etiqueta);
-                }
-                else
-                    _etiquetasLeidas.Add(etiqueta);
-            }
-            catch (HttpRequestException)
-            {
-                await DisplayAlert(AppStrings.AlertErrorTitle, AppStrings.AlertErrorLabelNotFoundMessage, AppStrings.AlertOkButton);
-            }
-            catch (Exception ex)
-            {
-                await DisplayAlert(AppStrings.AlertErrorTitle, ex.Message, AppStrings.AlertOkButton);
-            }
-            finally
-            {
-                Config.CloseLoadingPopup();
-            }
+            var etiqueta = await ReadBarcodeUIAsync(args.Result[0].Text);
+            if (etiqueta != null)
+                _etiquetasLeidas.Add(etiqueta);
         }
     }
 
+    private async Task<Etiqueta?> ReadBarcodeUIAsync(string barcode)
+    {
+        Config.ShowLoadingPopup(this);
+        try
+        {
+            var (etiqueta, error, stockBajo) = await _etiquetaService.ReadBarcodeAsync(barcode);
 
+            if (!string.IsNullOrEmpty(error))
+            {
+                await DisplayAlert(AppStrings.AlertErrorTitle, error, AppStrings.AlertOkButton);
+                return null;
+            }
+
+            if (stockBajo)
+            {
+                var continua = await Message.Confirmation(this,
+                    "El stock contabilizado en el almacén de origen es menor al solicitado, lo cual podría demorar la transferencia. Desea continuar de todas formas?");
+                if (!continua)
+                    return null;
+            }
+
+            return etiqueta;
+        }
+        finally
+        {
+            Config.CloseLoadingPopup();
+        }
+    }
 
     private async void OnCameraTapped(object sender, TappedEventArgs e)
     {
@@ -201,7 +199,6 @@ public partial class ProduccionCargaSolicitudView
         try { await CameraView.StartCameraAsync(); } catch { /* maneja si no hay permiso/cámara */ }
     }
 
-    // Opcional: manejar ciclo de vida de la página
     protected override void OnAppearing()
     {
         base.OnAppearing();
@@ -214,8 +211,18 @@ public partial class ProduccionCargaSolicitudView
         base.OnDisappearing();
     }
 
-    private void Codigo_Completed(object sender, EventArgs e)
+    private async void Codigo_Completed(object sender, EventArgs e)
     {
+        if (sender is Entry entry && !string.IsNullOrWhiteSpace(entry.Text))
+        {
+            var barcode = entry.Text.Trim();
+            entry.Text = string.Empty;
 
+            var etiqueta = await ReadBarcodeUIAsync(barcode);
+            if (etiqueta != null)
+            {
+                _etiquetasLeidas.Add(etiqueta);
+            }
+        }
     }
 }
