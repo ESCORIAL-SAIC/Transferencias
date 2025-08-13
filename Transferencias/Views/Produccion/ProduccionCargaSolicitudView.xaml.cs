@@ -1,6 +1,7 @@
 using Camera.MAUI.ZXingHelper;
 using System.Collections.ObjectModel;
 using System.Net;
+using System.Threading.Tasks;
 using Transferencias.Controllers;
 using Transferencias.Models;
 using Transferencias.Resources.Values;
@@ -172,4 +173,46 @@ public partial class ProduccionCargaSolicitudView
             }
         }
     }
+
+
+
+    private async void OnCameraTapped(object sender, TappedEventArgs e)
+    {
+        await SwitchToManualAsync();
+    }
+
+    private async void OnBackToCameraClicked(object sender, EventArgs e)
+    {
+        await SwitchToCameraAsync();
+    }
+
+    private async Task SwitchToManualAsync()
+    {
+        try { await CameraView.StopCameraAsync(); } catch { /* ignora si ya está detenida */ }
+        CameraLayer.IsVisible = false;
+        ManualLayer.IsVisible = true;
+        Codigo.Focus();
+    }
+
+    private async Task SwitchToCameraAsync()
+    {
+        ManualLayer.IsVisible = false;
+        CameraLayer.IsVisible = true;
+        try { await CameraView.StartCameraAsync(); } catch { /* maneja si no hay permiso/cámara */ }
+    }
+
+    // Opcional: manejar ciclo de vida de la página
+    protected override void OnAppearing()
+    {
+        base.OnAppearing();
+        _ = CameraView.StartCameraAsync();
+    }
+
+    protected override void OnDisappearing()
+    {
+        _ = CameraView.StopCameraAsync();
+        base.OnDisappearing();
+    }
+
+
 }

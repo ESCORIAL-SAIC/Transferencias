@@ -17,20 +17,46 @@
             Padding="20,10"
             RowDefinitions="Auto,Auto,Auto,*"
             RowSpacing="20">
-            <Border
-                Grid.Row="0"
-                Margin="5"
-                Stroke="Transparent"
-                StrokeShape="RoundRectangle 10"
-                StrokeThickness="0">
-                <cv:CameraView
-                    x:Name="CameraView"
-                    BarCodeDetectionEnabled="True"
-                    BarcodeDetected="CameraView_BarcodeDetected"
-                    CamerasLoaded="CameraView_CamerasLoaded"
-                    HeightRequest="150"
-                    WidthRequest="500" />
-            </Border>
+            
+            
+            
+            <Grid Grid.Row="0" Padding="12">
+                <Grid x:Name="CameraLayer"
+                    HorizontalOptions="Center"
+                    VerticalOptions="Center">
+                    <Border
+                        Margin="5"
+                        Stroke="Transparent"
+                        StrokeShape="RoundRectangle 10">    
+                        <cv:CameraView
+                            x:Name="CameraView"
+                            BarCodeDetectionEnabled="True"
+                            BarcodeDetected="CameraView_BarcodeDetected"
+                            CamerasLoaded="CameraView_CamerasLoaded"
+                            WidthRequest="320"
+                            HeightRequest="200"
+                            HorizontalOptions="Center"
+                            VerticalOptions="Center">
+                            <cv:CameraView.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnCameraTapped" />
+                            </cv:CameraView.GestureRecognizers>
+                        </cv:CameraView>
+                    </Border>
+                </Grid>
+
+                <Grid x:Name="ManualLayer"
+                    IsVisible="False"
+                    HorizontalOptions="Center"
+                    VerticalOptions="Center">
+                    <HorizontalStackLayout Spacing="8">
+                        <Entry x:Name="Codigo" Placeholder="Ingrese código..." WidthRequest="220" />
+                        <Button Text="Volver a cámara" Clicked="OnBackToCameraClicked" />
+                    </HorizontalStackLayout>
+                </Grid>
+            </Grid>
+
+            
+            
             <Label
                 x:Name="BarcodeResult"
                 Grid.Row="1"
