@@ -10,7 +10,7 @@ namespace Transferencias;
 
 public abstract class Config
 {
-    private static readonly DatabaseContext DatabaseService = new();
+    private static readonly DatabaseService DatabaseService = new();
     private static LoadingPopup? _loadingPopup;
     private static bool _isPopupVisible;
     public static HttpClient? SharedClient { get; private set; }
@@ -19,11 +19,10 @@ public abstract class Config
     {
         var settings = await DatabaseService.GetAllAsync<ConfigVar>();
         var configVars = settings.ToList();
-        var apiUrlSetting = configVars.Find(a => a.Key == AppStrings.ApiUrlKey);
-        var apiUrl = apiUrlSetting!.Value!;
+        var apiUrl = "http://transferencias.escorialsa.com.ar/api";
         SharedClient = new HttpClient
         {
-            BaseAddress = new Uri(apiUrl)
+            BaseAddress = new Uri(apiUrl!)
         };
     }
 
@@ -36,13 +35,15 @@ public abstract class Config
 
     public static async Task<string?> GetApiUrlAsync()
     {
-        var settings = await DatabaseService.GetAllAsync<ConfigVar>();
-        var configVars = settings.ToList();
-        var apiUrlSetting = configVars.Find(l => l.Key == AppStrings.ApiUrlKey);
-        if (apiUrlSetting is null)
-            return null;
-        var apiUrl = apiUrlSetting.Value;
-        return apiUrl ?? null;
+        // TODO: quitar hardcodeado
+        //var settings = await DatabaseService.GetAllAsync<ConfigVar>();
+        //var configVars = settings.ToList();
+        //var apiUrlSetting = configVars.Find(l => l.Key == AppStrings.ApiUrlKey);
+        //if (apiUrlSetting is null)
+        //    return null;
+        //var apiUrl = apiUrlSetting.Value;
+        //return apiUrl ?? null;
+        return "http://transferencias.escorialsa.com.ar/api"; // Temporal hardcodeado para pruebas
     }
 
     public static async Task<bool> SetApiUrl(string apiUrl)
@@ -119,26 +120,38 @@ public abstract class Config
 
     public static async Task<Deposito?> GetOrigin()
     {
-        var settings = await DatabaseService.GetAllAsync<ConfigVar>();
-        var configVars = settings.ToList();
-        var originIdSetting = configVars.Find(o => o.Key == AppStrings.OriginDepositIdKey);
-        var originId = originIdSetting?.Value;
-        if (originId is null)
-            return null;
-        var originGuid = new Guid(originId);
-        var origin = await DepositoController.GetByIdAsync(originGuid);
-        return origin ?? null;
+        //var settings = await DatabaseService.GetAllAsync<ConfigVar>();
+        //var configVars = settings.ToList();
+        //var originIdSetting = configVars.Find(o => o.Key == AppStrings.OriginDepositIdKey);
+        //var originId = originIdSetting?.Value;
+        //if (originId is null)
+        //    return null;
+        //var originGuid = new Guid(originId);
+        //var origin = await DepositoController.GetByIdAsync(originGuid);
+        //return origin ?? null;
+        return new Deposito
+        {
+            Id = Guid.NewGuid(),
+            Nombre = "Depósito de Origen",
+            Codigo = "ORIGEN"
+        }; // Temporal hardcodeado para pruebas
     }
 
     public static async Task<Deposito?> GetDestination()
     {
-        var settings = await DatabaseService.GetAllAsync<ConfigVar>();
-        var configVars = settings.ToList();
-        var destinationIdSetting = configVars.Find(o => o.Key == AppStrings.DestinationDepositIdKey);
-        var destinationId = destinationIdSetting?.Value;
-        if (destinationId is null)
-            return null;
-        var destination = await DepositoController.GetByIdAsync(new Guid(destinationId));
-        return destination;
+        //var settings = await DatabaseService.GetAllAsync<ConfigVar>();
+        //var configVars = settings.ToList();
+        //var destinationIdSetting = configVars.Find(o => o.Key == AppStrings.DestinationDepositIdKey);
+        //var destinationId = destinationIdSetting?.Value;
+        //if (destinationId is null)
+        //    return null;
+        //var destination = await DepositoController.GetByIdAsync(new Guid(destinationId));
+        //return destination;
+        return new Deposito
+        {
+            Id = Guid.NewGuid(),
+            Nombre = "Depósito de Destino",
+            Codigo = "DESTINO"
+        }; // Temporal hardcodeado para pruebas
     }
 }
