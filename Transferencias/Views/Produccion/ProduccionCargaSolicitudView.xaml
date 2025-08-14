@@ -33,7 +33,7 @@
                             BarCodeDetectionEnabled="True"
                             BarcodeDetected="CameraView_BarcodeDetected"
                             CamerasLoaded="CameraView_CamerasLoaded"
-                            WidthRequest="320"
+                            WidthRequest="500"
                             HeightRequest="200"
                             HorizontalOptions="Center"
                             VerticalOptions="Center">
