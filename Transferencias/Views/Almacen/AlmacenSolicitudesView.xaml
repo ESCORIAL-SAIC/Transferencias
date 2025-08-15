@@ -60,7 +60,7 @@
             <ListView
                 x:Name="ItemsListView"
                 Grid.Row="3"
-                Margin="0,10,0,5"
+                Margin="0,10,0,0"
                 ItemTapped="ItemsListView_ItemTapped"
                 ItemsSource="{Binding SolicitudesTransferencias}"
                 SelectionMode="Single"
