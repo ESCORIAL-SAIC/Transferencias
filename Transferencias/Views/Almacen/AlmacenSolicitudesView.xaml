@@ -136,6 +136,7 @@
                 HorizontalOptions="End"
                 Pressed="UpdateButton_Pressed"
                 VerticalOptions="End"
+                Margin="0,0,10,10"
                 WidthRequest="60">
                 <Button.ImageSource>
                     <FontImageSource FontFamily="MaterialRegular" Glyph="{x:Static m:MaterialRegular.Refresh}" />
