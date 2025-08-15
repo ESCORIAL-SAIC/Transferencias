@@ -15,8 +15,7 @@
         <Grid
             Grid.Row="1"
             RowDefinitions="Auto,Auto,*"
-            Margin="0,0,0,10"
-            RowSpacing="10">
+            Margin="0,0,0,10">
             <Grid Grid.Row="0">
                 <Grid x:Name="CameraLayer"
                     HorizontalOptions="Center"
@@ -77,36 +76,25 @@
 
                 </Grid>
             </Grid>
-            <Label
-                Grid.Row="1"
-                x:Name="BarcodeResult"
-                FontSize="20"
-                Text="Escaneando código..." />
             <Grid Grid.Row="2" 
-                RowDefinitions="Auto,Auto,*"
-                Padding="20,10"
+                RowDefinitions="Auto,*"
+                Padding="20,10,20,0"
                 BackgroundColor="{StaticResource Primary}" >
                 <Label
                     x:Name="NumeroSolicitudLabel"
-                    Grid.Row="1"
+                    Grid.Row="0"
                     FontAttributes="Bold"
+                    Margin="0,0,0,10"
                     FontSize="Subtitle"
                     Text="{Binding SolicitudTransferencia.NombreSolicitud}"
                     TextColor="{StaticResource Gray100}" />
-                <Label
-                    Grid.Row="2"
-                    FontAttributes="Bold"
-                    FontSize="Subtitle"
-                    Text="Items:"
-                    TextColor="{StaticResource Gray100}" />
                 <ListView
                     x:Name="ItemsListView"
-                    Grid.Row="3"
-                    Margin="0,20,0,0"
+                    Grid.Row="1"
                     ItemsSource="{Binding SolicitudTransferencias.ItemsSolicitudTransferencia}"
                     SelectionMode="Single"
                     SeparatorColor="Transparent"
-                    VerticalOptions="FillAndExpand"
+                    VerticalOptions="Fill"
                     VerticalScrollBarVisibility="Always">
                     <ListView.ItemTemplate>
                         <DataTemplate>
@@ -115,13 +103,13 @@
                                     Margin="0,5"
                                     Padding="0"
                                     HeightRequest="42"
-                                    VerticalOptions="FillAndExpand">
+                                    VerticalOptions="Fill">
                                     <BoxView
                                         BackgroundColor="{AppThemeBinding Light={StaticResource Gray100},
                                                                           Dark={StaticResource Gray600}}"
                                         CornerRadius="10"
-                                        HorizontalOptions="FillAndExpand"
-                                        VerticalOptions="FillAndExpand"
+                                        HorizontalOptions="Fill"
+                                        VerticalOptions="Fill"
                                         ZIndex="-1" />
                                     <Grid Padding="5,0,0,0" ColumnSpacing="10">
                                         <Grid.RowDefinitions>
