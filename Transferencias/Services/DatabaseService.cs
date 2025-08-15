@@ -3,7 +3,7 @@ using System.Linq.Expressions;
 
 namespace Transferencias.Services
 {
-    public class DatabaseContext : IAsyncDisposable
+    public class DatabaseService : IAsyncDisposable
     {
         private const string DbName = "cfg.db3";
         private static string DbPath => Path.Combine(FileSystem.AppDataDirectory, DbName);

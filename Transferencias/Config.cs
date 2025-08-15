@@ -10,7 +10,7 @@ namespace Transferencias;
 
 public abstract class Config
 {
-    private static readonly DatabaseContext DatabaseService = new();
+    private static readonly DatabaseService DatabaseService = new();
     private static LoadingPopup? _loadingPopup;
     private static bool _isPopupVisible;
     public static HttpClient? SharedClient { get; private set; }

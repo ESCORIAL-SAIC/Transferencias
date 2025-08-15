@@ -6,6 +6,7 @@
     xmlns:android="clr-namespace:Microsoft.Maui.Controls.PlatformConfiguration.AndroidSpecific;assembly=Microsoft.Maui.Controls"
     xmlns:controls="clr-namespace:Transferencias.Controls"
     xmlns:cv="clr-namespace:Camera.MAUI;assembly=Camera.MAUI"
+    xmlns:m="clr-namespace:UraniumUI.Icons.MaterialIcons;assembly=UraniumUI.Icons.MaterialIcons"
     Title="ProduccionCargaSolicitudView">
     <Grid Padding="0,0" RowDefinitions="Auto,8*,*">
         <controls:TopBar
@@ -17,20 +18,72 @@
             Padding="20,10"
             RowDefinitions="Auto,Auto,Auto,*"
             RowSpacing="20">
-            <Border
-                Grid.Row="0"
-                Margin="5"
-                Stroke="Transparent"
-                StrokeShape="RoundRectangle 10"
-                StrokeThickness="0">
-                <cv:CameraView
-                    x:Name="CameraView"
-                    BarCodeDetectionEnabled="True"
-                    BarcodeDetected="CameraView_BarcodeDetected"
-                    CamerasLoaded="CameraView_CamerasLoaded"
-                    HeightRequest="150"
-                    WidthRequest="500" />
-            </Border>
+            
+            
+            
+            <Grid Grid.Row="0">
+                <Grid x:Name="CameraLayer"
+                    HorizontalOptions="Center"
+                    VerticalOptions="Center">
+                    <Border
+                        Margin="10"
+                        Stroke="Transparent"
+                        StrokeShape="RoundRectangle 10">    
+                        <cv:CameraView
+                            x:Name="CameraView"
+                            BarCodeDetectionEnabled="True"
+                            BarcodeDetected="CameraView_BarcodeDetected"
+                            CamerasLoaded="CameraView_CamerasLoaded"
+                            WidthRequest="400"
+                            HeightRequest="150"
+                            HorizontalOptions="Center"
+                            VerticalOptions="Center">
+                            <cv:CameraView.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnCameraTapped" />
+                            </cv:CameraView.GestureRecognizers>
+                        </cv:CameraView>
+                    </Border>
+                </Grid>
+
+                <Grid x:Name="ManualLayer"
+                    IsVisible="False"
+                    HorizontalOptions="Fill"
+                    VerticalOptions="Center"
+                    Padding="10"
+                    ColumnSpacing="5"
+                    ColumnDefinitions="*,Auto">
+
+                    <Border
+                        Grid.Column="0"
+                        Padding="10,3"
+                        Stroke="{StaticResource Primary}"
+                        StrokeShape="RoundRectangle 30,30,30,30"
+                        HorizontalOptions="Fill"
+                        StrokeThickness="2">
+
+                        <Entry x:Name="Codigo"
+                           Placeholder="Ingrese código..."
+                           Completed="Codigo_Completed"
+                           VerticalOptions="Center" />
+                    </Border>
+
+                    <Button Grid.Column="1"
+                        Clicked="OnBackToCameraClicked"
+                        HeightRequest="48"
+                        WidthRequest="48"
+                        HorizontalOptions="Center"
+                        VerticalOptions="Center">
+                        <Button.ImageSource>
+                            <FontImageSource FontFamily="MaterialRegular"
+                             Glyph="{x:Static m:MaterialRegular.Cameraswitch}" />
+                        </Button.ImageSource>
+                    </Button>
+
+                </Grid>
+            </Grid>
+
+            
+            
             <Label
                 x:Name="BarcodeResult"
                 Grid.Row="1"
