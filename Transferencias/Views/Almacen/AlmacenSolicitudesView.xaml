@@ -14,7 +14,7 @@
         <Grid
             Grid.Row="1"
             Padding="20,10"
-            RowDefinitions="Auto,Auto,Auto,Auto,*">
+            RowDefinitions="Auto,Auto,Auto,*">
             <Label
                 Grid.Row="0"
                 Margin="0,10,0,10"
@@ -60,12 +60,12 @@
             <ListView
                 x:Name="ItemsListView"
                 Grid.Row="3"
-                Margin="0,10,0,0"
+                Margin="0,10,0,5"
                 ItemTapped="ItemsListView_ItemTapped"
                 ItemsSource="{Binding SolicitudesTransferencias}"
                 SelectionMode="Single"
                 SeparatorColor="Transparent"
-                VerticalOptions="FillAndExpand"
+                VerticalOptions="Fill"
                 VerticalScrollBarVisibility="Always">
                 <ListView.ItemTemplate>
                     <DataTemplate>
@@ -74,13 +74,13 @@
                                 Margin="0,5"
                                 Padding="0"
                                 HeightRequest="42"
-                                VerticalOptions="FillAndExpand">
+                                VerticalOptions="Fill">
                                 <BoxView
                                     BackgroundColor="{AppThemeBinding Light={StaticResource Gray100},
                                                                       Dark={StaticResource Gray600}}"
                                     CornerRadius="10"
-                                    HorizontalOptions="FillAndExpand"
-                                    VerticalOptions="FillAndExpand"
+                                    HorizontalOptions="Fill"
+                                    VerticalOptions="Fill"
                                     ZIndex="-1" />
                                 <Grid ColumnSpacing="10">
                                     <Grid.RowDefinitions>
@@ -131,7 +131,7 @@
             </ListView>
             <Button
                 x:Name="UpdateButton"
-                Grid.Row="4"
+                Grid.Row="3"
                 HeightRequest="60"
                 HorizontalOptions="End"
                 Pressed="UpdateButton_Pressed"
