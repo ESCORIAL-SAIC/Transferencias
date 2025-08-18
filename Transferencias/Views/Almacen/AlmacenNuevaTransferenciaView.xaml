@@ -12,7 +12,6 @@
             Grid.Row="0"
             UseLogoutButton="True"
             ShowUserData="True" />
-        
         <Grid
             Grid.Row="1"
             RowDefinitions="Auto,Auto,*"
