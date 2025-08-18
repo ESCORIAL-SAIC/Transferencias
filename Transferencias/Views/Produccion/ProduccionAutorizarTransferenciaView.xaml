@@ -6,25 +6,35 @@
     xmlns:cv="clr-namespace:Camera.MAUI;assembly=Camera.MAUI"
     xmlns:controls="clr-namespace:Transferencias.Controls"
     Shell.NavBarIsVisible="False">
-    <Grid Padding="0,0" RowDefinitions="Auto,8*,*">
+    <Grid Padding="0,0" RowDefinitions="Auto,*,Auto">
         <controls:TopBar
             Grid.Row="0"
             UseLogoutButton="True"
             ShowUserData="True" />
-        <Border
-            Grid.Row="1"
-            Margin="5"
-            Stroke="Transparent"
-            StrokeShape="RoundRectangle 10"
-            StrokeThickness="0">
-            <cv:CameraView
-                x:Name="CameraView"
-                BarCodeDetectionEnabled="True"
-                BarcodeDetected="CameraView_BarcodeDetected"
-                CamerasLoaded="CameraView_CamerasLoaded"
-                HeightRequest="300"
-                WidthRequest="300" />
-        </Border>
+
+
+        <Grid Grid.Row="1" Padding="20">
+            <Grid x:Name="CameraLayer"
+                HorizontalOptions="Center"
+                VerticalOptions="Center">
+                <Border
+                    Margin="10"
+                    Stroke="Transparent"
+                    StrokeShape="RoundRectangle 10">
+                    <cv:CameraView
+                        x:Name="CameraView"
+                        BarCodeDetectionEnabled="True"
+                        BarcodeDetected="CameraView_BarcodeDetected"
+                        CamerasLoaded="CameraView_CamerasLoaded"
+                        WidthRequest="400"
+                        HeightRequest="400"
+                        HorizontalOptions="Center"
+                        VerticalOptions="Center">
+                    </cv:CameraView>
+                </Border>
+            </Grid>
+        </Grid>
+        
         <Label
             x:Name="BarcodeResult"
             Grid.Row="2"
