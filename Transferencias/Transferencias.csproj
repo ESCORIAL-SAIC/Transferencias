@@ -25,6 +25,8 @@
 		<AssemblyVersion></AssemblyVersion>
 
 		<WindowsPackageType>None</WindowsPackageType>
+
+		<PackageIcon></PackageIcon>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net8.0-android|AnyCPU'">
@@ -146,6 +148,10 @@
 	<ItemGroup>
 	  <None Update="cfg.db3">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </None>
+	  <None Update="Resources\AppIcon\escorial_icon.png">
+	    <Pack>True</Pack>
+	    <PackagePath>\</PackagePath>
 	  </None>
 	  <None Update="Resources\Values\strings.xml">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
