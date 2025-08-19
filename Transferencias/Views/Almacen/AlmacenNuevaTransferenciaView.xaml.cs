@@ -142,7 +142,6 @@ public partial class AlmacenNuevaTransferenciaView
 
         async void Action()
         {
-            BarcodeResult.Text = $"{args.Result[0].BarcodeFormat}: {args.Result[0].Text}";
             try
             {
                 Config.ShowLoadingPopup(this);
@@ -226,7 +225,6 @@ public partial class AlmacenNuevaTransferenciaView
         {
             await CameraView.StopCameraAsync();
             await CameraView.StartCameraAsync();
-            BarcodeResult.Text = "Escaneando código...";
         }
     }
 
@@ -271,7 +269,6 @@ public partial class AlmacenNuevaTransferenciaView
     {
         if (sender is Entry entry && !string.IsNullOrWhiteSpace(entry.Text))
         {
-            BarcodeResult.Text = $"{entry.Text.Trim()}";
             try
             {
                 Config.ShowLoadingPopup(this);

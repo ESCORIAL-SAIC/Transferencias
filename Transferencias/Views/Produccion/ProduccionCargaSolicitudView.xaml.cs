@@ -138,7 +138,6 @@ public partial class ProduccionCargaSolicitudView
         _debounceTimer.Enabled = true;
         async void Action()
         {
-            BarcodeResult.Text = $"{args.Result[0].BarcodeFormat}: {args.Result[0].Text}";
             var etiqueta = await ReadBarcodeUIAsync(args.Result[0].Text);
             if (etiqueta != null)
                 _etiquetasLeidas.Add(etiqueta);

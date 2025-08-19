@@ -7,41 +7,64 @@
     xmlns:m="clr-namespace:UraniumUI.Icons.MaterialIcons;assembly=UraniumUI.Icons.MaterialIcons"
     xmlns:local="clr-namespace:Transferencias.Views"
     BackgroundImageSource="background_login.png">
-    <VerticalStackLayout
-        Padding="20,305"
-        Spacing="15"
-        VerticalOptions="Center">
-        <Label Padding="26,0,0,15" FontSize="Subtitle">
+    
+    <Grid Padding="20, 20, 20, 60" RowSpacing="15" VerticalOptions="Center">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <Image
+            Grid.Row="0"
+            Source="logo_trans_azul_big.png" 
+            MaximumWidthRequest="250"/>
+
+        <!-- Título -->
+        <Label Grid.Row="1" Padding="26,0,0,15" FontSize="Subtitle">
             <Label.FormattedText>
                 <FormattedString>
                     <Span
-                        FontAttributes="Bold"
-                        Text="{Binding LoginEntryText}"
-                        TextColor="{StaticResource PrimaryDark}" />
+                    FontAttributes="Bold"
+                    Text="{Binding LoginEntryText}"
+                    TextColor="{StaticResource PrimaryDark}" />
                 </FormattedString>
             </Label.FormattedText>
         </Label>
-        <Border
+
+        <!-- Usuario -->
+        <Border Grid.Row="2"
             Padding="10,3"
             Stroke="{StaticResource Primary}"
             StrokeShape="RoundRectangle 30,30,30,30"
-            StrokeThickness="2"
-            WidthRequest="350">
+            HorizontalOptions="Fill"
+            MaximumWidthRequest="400">
             <Entry x:Name="UserEntry" Placeholder="{Binding PlaceholderUserEntryText}" />
         </Border>
-        <Border
+
+        <!-- Contraseña -->
+        <Border Grid.Row="3"
             Padding="10,3"
             Stroke="{StaticResource Primary}"
             StrokeShape="RoundRectangle 30,30,30,30"
             StrokeThickness="2"
-            WidthRequest="350">
-            <Entry
-                x:Name="PasswordEntry"
-                IsPassword="True"
-                Placeholder="{Binding PlaceholderPasswordEntryText}" />
+            HorizontalOptions="Fill"
+            MaximumWidthRequest="400">
+            <Entry x:Name="PasswordEntry" IsPassword="True" Placeholder="{Binding PlaceholderPasswordEntryText}" />
         </Border>
-        <StackLayout Margin="0,30,0,0" Spacing="10">
-            <Button
+
+        <!-- Botones -->
+        <Grid Grid.Row="4" ColumnSpacing="10" HorizontalOptions="Center">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <Button Grid.Column="0"
                 x:Name="SubmitButton"
                 Clicked="SubmitButton_Clicked"
                 CornerRadius="30"
@@ -55,7 +78,8 @@
                     <Binding Path="LoginButtonText" />
                 </Button.Text>
             </Button>
-            <Button
+
+            <Button Grid.Column="1"
                 x:Name="SettingsButton"
                 BackgroundColor="{StaticResource Gray300}"
                 Clicked="SettingsButton_OnClicked"
@@ -67,18 +91,21 @@
                     <FontImageSource FontFamily="MaterialRegular" Glyph="{x:Static m:MaterialRegular.Settings}" />
                 </Button.ImageSource>
             </Button>
-        </StackLayout>
-        <Label
-            x:Name="AppVersionLabel"
-            Margin="10"
-            HorizontalOptions="Center"
-            TextColor="{AppThemeBinding Light={StaticResource Gray200},
-                                        Dark={StaticResource Gray500}}"
-            Text="{Binding AppVersionText}"
-            VerticalOptions="End">
+        </Grid>
+
+        <!-- Versión -->
+        <Label Grid.Row="5"
+           x:Name="AppVersionLabel"
+           Margin="10"
+           HorizontalOptions="Center"
+           TextColor="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray500}}"
+           Text="{Binding AppVersionText}"
+           VerticalOptions="End">
             <Label.GestureRecognizers>
                 <TapGestureRecognizer Tapped="TapGestureRecognizer_Tapped" />
             </Label.GestureRecognizers>
         </Label>
-    </VerticalStackLayout>
+    </Grid>
+
+
 </ContentPage>

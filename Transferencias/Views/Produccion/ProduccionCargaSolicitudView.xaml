@@ -8,27 +8,23 @@
     xmlns:cv="clr-namespace:Camera.MAUI;assembly=Camera.MAUI"
     xmlns:m="clr-namespace:UraniumUI.Icons.MaterialIcons;assembly=UraniumUI.Icons.MaterialIcons"
     Title="ProduccionCargaSolicitudView">
-    <Grid Padding="0,0" RowDefinitions="Auto,8*,*">
+    <Grid Padding="0,0" RowDefinitions="Auto,*,Auto">
         <controls:TopBar
             Grid.Row="0"
             UseLogoutButton="True"
             ShowUserData="True" />
         <Grid
             Grid.Row="1"
-            Padding="20,10"
-            RowDefinitions="Auto,Auto,Auto,*"
-            RowSpacing="20">
-            
-            
-            
-            <Grid Grid.Row="0">
+            RowDefinitions="Auto,Auto,*"
+            Margin="0,0,0,10">
+            <Grid Grid.Row="0" Padding="20,10">
                 <Grid x:Name="CameraLayer"
                     HorizontalOptions="Center"
                     VerticalOptions="Center">
                     <Border
                         Margin="10"
                         Stroke="Transparent"
-                        StrokeShape="RoundRectangle 10">    
+                        StrokeShape="RoundRectangle 10">
                         <cv:CameraView
                             x:Name="CameraView"
                             BarCodeDetectionEnabled="True"
@@ -44,7 +40,6 @@
                         </cv:CameraView>
                     </Border>
                 </Grid>
-
                 <Grid x:Name="ManualLayer"
                     IsVisible="False"
                     HorizontalOptions="Fill"
@@ -52,7 +47,6 @@
                     Padding="10"
                     ColumnSpacing="5"
                     ColumnDefinitions="*,Auto">
-
                     <Border
                         Grid.Column="0"
                         Padding="10,3"
@@ -60,13 +54,11 @@
                         StrokeShape="RoundRectangle 30,30,30,30"
                         HorizontalOptions="Fill"
                         StrokeThickness="2">
-
                         <Entry x:Name="Codigo"
                            Placeholder="Ingrese código..."
                            Completed="Codigo_Completed"
                            VerticalOptions="Center" />
                     </Border>
-
                     <Button Grid.Column="1"
                         Clicked="OnBackToCameraClicked"
                         HeightRequest="48"
@@ -75,99 +67,81 @@
                         VerticalOptions="Center">
                         <Button.ImageSource>
                             <FontImageSource FontFamily="MaterialRegular"
-                             Glyph="{x:Static m:MaterialRegular.Cameraswitch}" />
+                                Glyph="{x:Static m:MaterialRegular.Cameraswitch}" />
                         </Button.ImageSource>
                     </Button>
 
                 </Grid>
             </Grid>
-
-            
-            
-            <Label
-                x:Name="BarcodeResult"
-                Grid.Row="1"
-                FontSize="20"
-                Text="Escaneando código..." />
-            <BoxView
+            <Grid
                 Grid.Row="2"
-                Grid.RowSpan="2"
-                Margin="-20,-10,-20,-20"
-                BackgroundColor="{StaticResource Primary}"
-                HorizontalOptions="FillAndExpand"
-                VerticalOptions="Fill"
-                ZIndex="-1" />
-            <Label
-                Grid.Row="2"
-                FontAttributes="Bold"
-                FontSize="Subtitle"
-                Text="Items a solicitar:"
-                TextColor="{StaticResource Gray100}" />
-            <ListView
-                x:Name="ItemsListView"
-                Grid.Row="3"
-                ItemsSource="{Binding EtiquetasLeidas}"
-                SelectionMode="None"
-                SeparatorColor="Transparent"
-                VerticalOptions="FillAndExpand"
-                VerticalScrollBarVisibility="Never">
-                <ListView.ItemTemplate>
-                    <DataTemplate>
-                        <ViewCell>
-                            <SwipeView android:SwipeView.SwipeTransitionMode="Drag">
-                                <SwipeView.LeftItems>
-                                    <SwipeItems>
-                                        <SwipeItem
+                Padding="20,10,20,0"
+                BackgroundColor="{StaticResource Primary}">
+                <ListView
+                    x:Name="ItemsListView"
+                    ItemsSource="{Binding EtiquetasLeidas}"
+                    SelectionMode="None"
+                    SeparatorColor="Transparent"
+                    VerticalOptions="Fill"
+                    VerticalScrollBarVisibility="Never">
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <ViewCell>
+                                <SwipeView android:SwipeView.SwipeTransitionMode="Drag">
+                                    <SwipeView.LeftItems>
+                                        <SwipeItems>
+                                            <SwipeItem
                                             x:Name="EliminarSwipeItem"
                                             BackgroundColor="Red"
                                             Invoked="EliminarSwipeItem_OnInvoked"
                                             Text="Eliminar" />
-                                    </SwipeItems>
-                                </SwipeView.LeftItems>
-                                <Grid
+                                        </SwipeItems>
+                                    </SwipeView.LeftItems>
+                                    <Grid
                                     Margin="0,5"
                                     Padding="0"
                                     HeightRequest="42"
-                                    VerticalOptions="FillAndExpand">
-                                    <BoxView
+                                    VerticalOptions="Fill">
+                                        <BoxView
                                         BackgroundColor="{AppThemeBinding Light={StaticResource Gray100},
                                                                           Dark={StaticResource Gray600}}"
                                         CornerRadius="10"
-                                        HorizontalOptions="FillAndExpand"
-                                        VerticalOptions="FillAndExpand"
+                                        HorizontalOptions="Fill"
+                                        VerticalOptions="Fill"
                                         ZIndex="-1" />
-                                    <Grid Padding="5,0,0,0" ColumnSpacing="10">
-                                        <Grid.RowDefinitions>
-                                            <RowDefinition />
-                                        </Grid.RowDefinitions>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="*" />
-                                            <ColumnDefinition Width="2*" />
-                                            <ColumnDefinition Width="3*" />
-                                        </Grid.ColumnDefinitions>
-                                        <Label
+                                        <Grid Padding="5,0,0,0" ColumnSpacing="10">
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition />
+                                            </Grid.RowDefinitions>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="2*" />
+                                                <ColumnDefinition Width="3*" />
+                                            </Grid.ColumnDefinitions>
+                                            <Label
                                             Grid.Column="0"
                                             FontAttributes="Bold"
                                             FontSize="Default"
                                             Text="{Binding Cantidad}"
                                             VerticalOptions="Center" />
-                                        <Label
+                                            <Label
                                             Grid.Column="1"
                                             FontSize="Default"
                                             Text="{Binding Producto.Codigo}"
                                             VerticalOptions="Center" />
-                                        <Label
+                                            <Label
                                             Grid.Column="2"
                                             FontSize="Default"
                                             Text="{Binding Producto.Descripcion}"
                                             VerticalOptions="Center" />
+                                        </Grid>
                                     </Grid>
-                                </Grid>
-                            </SwipeView>
-                        </ViewCell>
-                    </DataTemplate>
-                </ListView.ItemTemplate>
-            </ListView>
+                                </SwipeView>
+                            </ViewCell>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+            </Grid>
         </Grid>
         <Button
             x:Name="ConfirmarButton"
@@ -176,6 +150,6 @@
             Pressed="ConfirmarButton_OnPressed"
             Text="Confirmar"
             VerticalOptions="End"
-            WidthRequest="200" />
+            MaximumWidthRequest="200" />
     </Grid>
 </ContentPage>
