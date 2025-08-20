@@ -43,7 +43,9 @@ jobs:
 
       # 6️⃣ Decode keystore into the project folder
       - name: Decode keystore from base64
-        run: echo "${{ secrets.ORG_ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > ./Transferencias/Transferencias/my-release-key.keystore
+        run: |
+            mkdir -p ./Transferencias/Transferencias
+            echo "${{ secrets.ANDROID_KEYSTORE }}" | base64 --decode > ./Transferencias/Transferencias/my-release-key.keystore
 
       # 7️⃣ Restore .NET dependencies
       - name: Restore .NET MAUI dependencies
