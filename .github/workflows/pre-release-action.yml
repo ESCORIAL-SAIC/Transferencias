@@ -51,12 +51,12 @@ jobs:
         shell: pwsh
 
       # 6️⃣ Generar tag automático con timestamp
-      - name: Generate version tag
-        id: versioning
-        run: |
-          $VERSION_TAG = "prerelease-" + (Get-Date -Format "yyyy.MM.dd.HHmm")
-          echo "version=$VERSION_TAG" >> $env:GITHUB_ENV
-        shell: pwsh
+      - name: Generate version tag 
+        id: versioning 
+        run: | 
+          VERSION_TAG="prerelease-$(date +'%Y.%m.%d.%H%M')" 
+          echo "version=$VERSION_TAG" >> $GITHUB_OUTPUT
+
 
       # 7️⃣ Commit & push tag
       - name: Commit & Tag version
