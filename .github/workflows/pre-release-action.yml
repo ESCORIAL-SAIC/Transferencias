@@ -27,17 +27,8 @@ jobs:
 
       # 4️⃣ Publicar APK firmado
       - name: Publish Android APK
-        run: |
-          dotnet publish MyApp/MyApp.csproj \
-            -f net8.0-android \
-            -c Release \
-            -o ./output \
-            /p:AndroidPackageFormat=apk \
-            /p:AndroidKeyStore=true \
-            /p:AndroidSigningKeyStore=keystore/my-release-key.keystore \
-            /p:AndroidSigningKeyAlias=my-key-alias \
-            /p:AndroidSigningKeyPass="${{ secrets.KEYSTORE_PASSWORD }}" \
-            /p:AndroidSigningStorePass="${{ secrets.KEYSTORE_PASSWORD }}"
+        run: dotnet publish "MyApp/MyApp.csproj" -f net8.0-android -c Release -o ./output /p:AndroidPackageFormat=apk /p:AndroidKeyStore=true /p:AndroidSigningKeyStore=keystore/my-release-key.keystore /p:AndroidSigningKeyAlias=my-key-alias /p:AndroidSigningKeyPass="${{ secrets.KEYSTORE_PASSWORD }}" /p:AndroidSigningStorePass="${{ secrets.KEYSTORE_PASSWORD }}"
+        shell: pwsh
 
       # 5️⃣ Crear release en GitHub
       - name: Create GitHub Release
