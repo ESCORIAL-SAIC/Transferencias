@@ -3,7 +3,7 @@ name: Build Android APK and Release
 on:
   push:
     branches:
-      - ci-cd/setup  # Dispara el workflow al hacer push de un tag como v1.0.0
+      - ci-cd/setup # Se dispara al crear un tag como v1.0.0
   workflow_dispatch:
 
 jobs:
@@ -24,14 +24,15 @@ jobs:
       # 3️⃣ Instalar MAUI workload
       - name: Install MAUI workload
         run: dotnet workload install maui
+        shell: pwsh
 
-      # 4️⃣ Restaurar keystore desde Base64
+      # 4️⃣ Restaurar keystore desde Base64 (PowerShell)
       - name: Restore keystore
         run: |
-          echo "${{ secrets.ORG_ANDROID_KEYSTORE_BASE64 }}" | base64 -d > ./my-release-key.keystore
-        shell: bash
+          [System.IO.File]::WriteAllBytes("my-release-key.keystore", [Convert]::FromBase64String("${{ secrets.ORG_ANDROID_KEYSTORE_BASE64 }}"))
+        shell: pwsh
 
-      # 5️⃣ Publicar APK firmado (una sola línea para PowerShell)
+      # 5️⃣ Publicar APK firmado
       - name: Publish Android APK
         run: dotnet publish "Transferencias/Transferencias.csproj" -f net8.0-android -c Release -o ./output /p:AndroidPackageFormat=apk /p:AndroidKeyStore=true /p:AndroidSigningKeyStore=./my-release-key.keystore /p:AndroidSigningKeyAlias="${{ secrets.ORG_ANDROID_KEY_ALIAS }}" /p:AndroidSigningKeyPass="${{ secrets.ORG_ANDROID_KEY_PASSWORD }}" /p:AndroidSigningStorePass="${{ secrets.ORG_ANDROID_KEYSTORE_PASSWORD }}"
         shell: pwsh
