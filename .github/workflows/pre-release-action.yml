@@ -3,7 +3,7 @@ name: Build Android APK and Release
 on:
   push:
     branches:
-      - ci-cd/setup  # Se dispara cuando creas un tag como v1.0.0
+      - ci-cd/setup  # Dispara el workflow al hacer push de un tag como v1.0.0
   workflow_dispatch:
 
 jobs:
@@ -11,8 +11,8 @@ jobs:
     runs-on: windows-latest
 
     steps:
-      # 1️⃣ Clonar el repositorio
-      - name: Checkout code
+      # 1️⃣ Clonar repositorio
+      - name: Checkout repository
         uses: actions/checkout@v3
 
       # 2️⃣ Instalar .NET
@@ -21,16 +21,22 @@ jobs:
         with:
           dotnet-version: 8.0.x
 
-      # 3️⃣ Instalar workloads de MAUI
+      # 3️⃣ Instalar MAUI workload
       - name: Install MAUI workload
         run: dotnet workload install maui
 
-      # 4️⃣ Publicar APK firmado
+      # 4️⃣ Restaurar keystore desde Base64
+      - name: Restore keystore
+        run: |
+          echo "${{ secrets.ORG_ANDROID_KEYSTORE_BASE64 }}" | base64 -d > ./my-release-key.keystore
+        shell: bash
+
+      # 5️⃣ Publicar APK firmado (una sola línea para PowerShell)
       - name: Publish Android APK
-        run: dotnet publish "Transferencias/Transferencias.csproj" -f net8.0-android -c Release -o ./output /p:AndroidPackageFormat=apk /p:AndroidKeyStore=true /p:AndroidSigningKeyStore=keystore/my-release-key.keystore /p:AndroidSigningKeyAlias=my-key-alias /p:AndroidSigningKeyPass="${{ secrets.KEYSTORE_PASSWORD }}" /p:AndroidSigningStorePass="${{ secrets.KEYSTORE_PASSWORD }}"
+        run: dotnet publish "Transferencias/Transferencias.csproj" -f net8.0-android -c Release -o ./output /p:AndroidPackageFormat=apk /p:AndroidKeyStore=true /p:AndroidSigningKeyStore=./my-release-key.keystore /p:AndroidSigningKeyAlias="${{ secrets.ORG_ANDROID_KEY_ALIAS }}" /p:AndroidSigningKeyPass="${{ secrets.ORG_ANDROID_KEY_PASSWORD }}" /p:AndroidSigningStorePass="${{ secrets.ORG_ANDROID_KEYSTORE_PASSWORD }}"
         shell: pwsh
 
-      # 5️⃣ Crear release en GitHub
+      # 6️⃣ Crear release en GitHub
       - name: Create GitHub Release
         id: create_release
         uses: actions/create-release@v1
@@ -42,11 +48,11 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # 6️⃣ Subir APK al release
+      # 7️⃣ Subir APK al release
       - name: Upload APK to Release
         uses: actions/upload-release-asset@v1
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./output/**/*.apk
-          asset_name: MyApp.apk
+          asset_name: Transferencias.apk
           asset_content_type: application/vnd.android.package-archive
