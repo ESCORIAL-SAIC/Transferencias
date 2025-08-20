@@ -16,37 +16,45 @@ jobs:
       JAVA_HOME: /usr/lib/jvm/java-17-openjdk
 
     steps:
+      # 1️⃣ Checkout code
       - name: Checkout repo
         uses: actions/checkout@v4
 
+      # 2️⃣ Setup .NET
       - name: Set up .NET
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: 8.0.x
 
+      # 3️⃣ Setup Java
       - name: Set up Java
         uses: actions/setup-java@v3
         with:
           distribution: temurin
           java-version: 17
 
+      # 4️⃣ Setup Android SDK
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Decode keystore from base64
-        run: echo "${{ secrets.ORG_ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > my-release-key.keystore
-
+      # 5️⃣ Install MAUI workloads
       - name: Install .NET MAUI workloads
         run: dotnet workload install maui-android
 
-      - name: Restore .NET MAUI dependencies
-        run: dotnet restore
+      # 6️⃣ Decode keystore into the project folder
+      - name: Decode keystore from base64
+        run: echo "${{ secrets.ORG_ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > ./Transferencias/Transferencias/my-release-key.keystore
 
+      # 7️⃣ Restore .NET dependencies
+      - name: Restore .NET MAUI dependencies
+        run: dotnet restore ./Transferencias/Transferencias.sln
+
+      # 8️⃣ Build MAUI APK Release
       - name: Build MAUI APK Release
         run: |
-          dotnet publish -f:net8.0-android -c Release \
+          dotnet publish ./Transferencias/Transferencias.sln -f:net8.0-android -c Release \
             -p:AndroidKeyStore=true \
-            -p:AndroidSigningKeyStore=my-release-key.keystore \
+            -p:AndroidSigningKeyStore=./Transferencias/Transferencias/my-release-key.keystore \
             -p:AndroidSigningStorePass="${{ secrets.ORG_ANDROID_KEYSTORE_PASSWORD }}" \
             -p:AndroidSigningKeyAlias="${{ secrets.ORG_ANDROID_KEY_ALIAS }}" \
             -p:AndroidSigningKeyPass="${{ secrets.ORG_ANDROID_KEY_PASSWORD }}" \
@@ -55,18 +63,21 @@ jobs:
             -p:EmbedAssembliesIntoApk=true \
             -o ./bin/Release/net8.0-android/publish
 
+      # 9️⃣ Locate APK
       - name: Locate APK
         id: apk
         run: |
           APK_PATH=$(find ./bin/Release/net8.0-android/publish -name "*.apk" | head -n 1)
           echo "apk_path=$APK_PATH" >> $GITHUB_OUTPUT
 
+      # 🔟 Generate version tag
       - name: Generate version tag
         id: versioning
         run: |
           VERSION_TAG="prerelease-$(date +'%Y.%m.%d.%H%M')"
           echo "version=$VERSION_TAG" >> $GITHUB_OUTPUT
 
+      # 1️⃣1️⃣ Commit & Tag version
       - name: Commit & Tag version
         run: |
           git config user.name "github-actions"
@@ -74,6 +85,7 @@ jobs:
           git tag ${{ steps.versioning.outputs.version }}
           git push origin ${{ steps.versioning.outputs.version }}
 
+      # 1️⃣2️⃣ Generate changelog
       - name: Generate changelog
         id: changelog
         uses: mikepenz/release-changelog-builder-action@v4
@@ -82,6 +94,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      # 1️⃣3️⃣ Create GitHub Prerelease
       - name: Create GitHub Prerelease
         uses: softprops/action-gh-release@v2
         with:
