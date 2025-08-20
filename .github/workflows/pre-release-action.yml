@@ -3,7 +3,7 @@ name: Build Android APK and Release
 on:
   push:
     branches:
-      - ci-cd/setup # Se dispara al crear un tag como v1.0.0
+      - ci-cd/setup  # Se dispara al crear un tag como v1.0.0
   workflow_dispatch:
 
 jobs:
@@ -26,15 +26,19 @@ jobs:
         run: dotnet workload install maui
         shell: pwsh
 
-      # 4️⃣ Restaurar keystore desde Base64 (PowerShell)
+      # 4️⃣ Restaurar keystore desde Base64 usando ruta absoluta
       - name: Restore keystore
         run: |
-          [System.IO.File]::WriteAllBytes("my-release-key.keystore", [Convert]::FromBase64String("${{ secrets.ORG_ANDROID_KEYSTORE_BASE64 }}"))
+          $keystorePath = Join-Path $PWD "my-release-key.keystore"
+          [System.IO.File]::WriteAllBytes($keystorePath, [Convert]::FromBase64String("${{ secrets.ORG_ANDROID_KEYSTORE_BASE64 }}"))
+          Write-Host "Keystore path: $keystorePath"
         shell: pwsh
 
-      # 5️⃣ Publicar APK firmado
+      # 5️⃣ Publicar APK firmado usando ruta absoluta del keystore
       - name: Publish Android APK
-        run: dotnet publish "Transferencias/Transferencias.csproj" -f net8.0-android -c Release -o ./output /p:AndroidPackageFormat=apk /p:AndroidKeyStore=true /p:AndroidSigningKeyStore=./my-release-key.keystore /p:AndroidSigningKeyAlias="${{ secrets.ORG_ANDROID_KEY_ALIAS }}" /p:AndroidSigningKeyPass="${{ secrets.ORG_ANDROID_KEY_PASSWORD }}" /p:AndroidSigningStorePass="${{ secrets.ORG_ANDROID_KEYSTORE_PASSWORD }}"
+        run: |
+          $keystorePath = Join-Path $PWD "my-release-key.keystore"
+          dotnet publish "Transferencias/Transferencias.csproj" -f net8.0-android -c Release -o "$PWD\output" /p:AndroidPackageFormat=apk /p:AndroidKeyStore=true /p:AndroidSigningKeyStore=$keystorePath /p:AndroidSigningKeyAlias="${{ secrets.ORG_ANDROID_KEY_ALIAS }}" /p:AndroidSigningKeyPass="${{ secrets.ORG_ANDROID_KEY_PASSWORD }}" /p:AndroidSigningStorePass="${{ secrets.ORG_ANDROID_KEYSTORE_PASSWORD }}"
         shell: pwsh
 
       # 6️⃣ Crear release en GitHub
@@ -54,6 +58,6 @@ jobs:
         uses: actions/upload-release-asset@v1
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./output/**/*.apk
+          asset_path: "$PWD/output/*.apk"
           asset_name: Transferencias.apk
           asset_content_type: application/vnd.android.package-archive
