@@ -3,7 +3,7 @@ name: Prerelease MAUI APK on Dev Merge
 on:
   push:
     branches:
-      - dev
+      - ci-cd/setup
 
 jobs:
   build:
