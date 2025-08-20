@@ -1,0 +1,90 @@
+name: Prerelease MAUI APK on Dev Merge
+
+on:
+  push:
+    branches:
+      - dev
+
+jobs:
+  build:
+    name: Build Signed MAUI APK and Prerelease
+    runs-on: ubuntu-latest
+
+    env:
+      DOTNET_CLI_TELEMETRY_OPTOUT: 1
+      ANDROID_HOME: /usr/local/lib/android/sdk
+      JAVA_HOME: /usr/lib/jvm/java-17-openjdk
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Decode keystore from base64
+        run: echo "${{ secrets.ORG_ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > my-release-key.keystore
+
+      - name: Restore .NET MAUI dependencies
+        run: dotnet restore
+
+      - name: Build MAUI APK Release
+        run: |
+          dotnet publish -f:net8.0-android -c Release \
+            -p:AndroidKeyStore=true \
+            -p:AndroidSigningKeyStore=my-release-key.keystore \
+            -p:AndroidSigningStorePass="${{ secrets.ORG_ANDROID_KEYSTORE_PASSWORD }}" \
+            -p:AndroidSigningKeyAlias="${{ secrets.ORG_ANDROID_KEY_ALIAS }}" \
+            -p:AndroidSigningKeyPass="${{ secrets.ORG_ANDROID_KEY_PASSWORD }}" \
+            -p:PublishTrimmed=false \
+            -p:EmbedAssembliesIntoApk=true \
+            -o ./bin/Release/net8.0-android/publish
+
+      - name: Locate APK
+        id: apk
+        run: |
+          APK_PATH=$(find ./bin/Release/net8.0-android/publish -name "*.apk" | head -n 1)
+          echo "apk_path=$APK_PATH" >> $GITHUB_OUTPUT
+
+      - name: Generate version tag
+        id: versioning
+        run: |
+          VERSION_TAG="prerelease-$(date +'%Y.%m.%d.%H%M')"
+          echo "version=$VERSION_TAG" >> $GITHUB_OUTPUT
+
+      - name: Commit & Tag version
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git tag ${{ steps.versioning.outputs.version }}
+          git push origin ${{ steps.versioning.outputs.version }}
+
+      - name: Generate changelog
+        id: changelog
+        uses: mikepenz/release-changelog-builder-action@v4
+        with:
+          configuration: ".github/changelog-config.json"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create GitHub Prerelease
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.versioning.outputs.version }}
+          name: Dev Prerelease ${{ steps.versioning.outputs.version }}
+          body: ${{ steps.changelog.outputs.changelog }}
+          files: ${{ steps.apk.outputs.apk_path }}
+          prerelease: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
