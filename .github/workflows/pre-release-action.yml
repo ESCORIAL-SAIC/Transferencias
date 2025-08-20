@@ -50,7 +50,8 @@ jobs:
             -p:AndroidSigningStorePass="${{ secrets.ORG_ANDROID_KEYSTORE_PASSWORD }}" \
             -p:AndroidSigningKeyAlias="${{ secrets.ORG_ANDROID_KEY_ALIAS }}" \
             -p:AndroidSigningKeyPass="${{ secrets.ORG_ANDROID_KEY_PASSWORD }}" \
-            -p:PublishTrimmed=false \
+            -p:PublishTrimmed=true \
+            -p:RunAOTCompilation=true \
             -p:EmbedAssembliesIntoApk=true \
             -o ./bin/Release/net8.0-android/publish
 
