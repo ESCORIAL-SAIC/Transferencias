@@ -1,4 +1,4 @@
-name: Build Android APK and Release
+name: Prerelease MAUI APK on Dev Merge
 
 on:
   push:
@@ -7,61 +7,83 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-android:
+  build:
+    name: Build Signed MAUI APK and Prerelease
     runs-on: windows-latest
 
+    env:
+      DOTNET_CLI_TELEMETRY_OPTOUT: 1
+
     steps:
-      # 1️⃣ Clonar repositorio
-      - name: Checkout repository
+      # 1️⃣ Clonar repo
+      - name: Checkout repo
         uses: actions/checkout@v3
 
-      # 2️⃣ Instalar .NET
+      # 2️⃣ Setup .NET
       - name: Setup .NET
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: 8.0.x
 
-      # 3️⃣ Instalar MAUI workload
+      # 3️⃣ Instalar workloads MAUI
       - name: Install MAUI workload
         run: dotnet workload install maui
         shell: pwsh
 
-      # 4️⃣ Restaurar keystore desde Base64 usando ruta absoluta
-      - name: Restore keystore
+      # 4️⃣ Restaurar keystore desde Base64 (PowerShell)
+      - name: Decode keystore from base64
         run: |
           $keystorePath = Join-Path $PWD "my-release-key.keystore"
           [System.IO.File]::WriteAllBytes($keystorePath, [Convert]::FromBase64String("${{ secrets.ORG_ANDROID_KEYSTORE_BASE64 }}"))
           Write-Host "Keystore path: $keystorePath"
         shell: pwsh
 
-      # 5️⃣ Publicar APK firmado y guardar ruta en variable de entorno
-      - name: Publish Android APK
-        id: publish
+      # 5️⃣ Build MAUI APK Release
+      - name: Build MAUI APK Release
         run: |
           $keystorePath = Join-Path $PWD "my-release-key.keystore"
           $outputDir = Join-Path $PWD "output"
-          dotnet publish "Transferencias/Transferencias.csproj" -f net8.0-android -c Release -o $outputDir /p:AndroidPackageFormat=apk /p:AndroidKeyStore=true /p:AndroidSigningKeyStore=$keystorePath /p:AndroidSigningKeyAlias="${{ secrets.ORG_ANDROID_KEY_ALIAS }}" /p:AndroidSigningKeyPass="${{ secrets.ORG_ANDROID_KEY_PASSWORD }}" /p:AndroidSigningStorePass="${{ secrets.ORG_ANDROID_KEYSTORE_PASSWORD }}"
+          dotnet publish "Transferencias/Transferencias.csproj" -f net8.0-android -c Release -o $outputDir /p:AndroidPackageFormat=apk /p:AndroidKeyStore=true /p:AndroidSigningKeyStore=$keystorePath /p:AndroidSigningKeyAlias="${{ secrets.ORG_ANDROID_KEY_ALIAS }}" /p:AndroidSigningKeyPass="${{ secrets.ORG_ANDROID_KEY_PASSWORD }}" /p:AndroidSigningStorePass="${{ secrets.ORG_ANDROID_KEYSTORE_PASSWORD }}" /p:PublishTrimmed=true /p:RunAOTCompilation=true /p:EmbedAssembliesIntoApk=true
+          
+          # Guardar ruta del APK generado
           $apkPath = Get-ChildItem $outputDir -Filter *.apk | Select-Object -First 1
           echo "apk_path=$($apkPath.FullName)" >> $env:GITHUB_ENV
         shell: pwsh
 
-      # 6️⃣ Crear release en GitHub
-      - name: Create GitHub Release
-        id: create_release
-        uses: actions/create-release@v1
+      # 6️⃣ Generar tag automático con timestamp
+      - name: Generate version tag
+        id: versioning
+        run: |
+          $VERSION_TAG = "prerelease-" + (Get-Date -Format "yyyy.MM.dd.HHmm")
+          echo "version=$VERSION_TAG" >> $env:GITHUB_ENV
+        shell: pwsh
+
+      # 7️⃣ Commit & push tag
+      - name: Commit & Tag version
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git tag $env:version
+          git push origin $env:version
+        shell: pwsh
+
+      # 8️⃣ Generar changelog (opcional)
+      - name: Generate changelog
+        id: changelog
+        uses: mikepenz/release-changelog-builder-action@v4
         with:
-          tag_name: ${{ github.ref_name }}
-          release_name: Release ${{ github.ref_name }}
-          draft: false
-          prerelease: false
+          configuration: ".github/changelog-config.json"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # 7️⃣ Subir APK al release
-      - name: Upload APK to Release
-        uses: actions/upload-release-asset@v1
+      # 9️⃣ Crear GitHub Prerelease y subir APK
+      - name: Create GitHub Prerelease
+        uses: softprops/action-gh-release@v2
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ${{ env.apk_path }}
-          asset_name: Transferencias.apk
-          asset_content_type: application/vnd.android.package-archive
+          tag_name: $env:version
+          name: Dev Prerelease $env:version
+          body: ${{ steps.changelog.outputs.changelog }}
+          files: ${{ env.apk_path }}
+          prerelease: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
