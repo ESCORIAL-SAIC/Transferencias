@@ -36,6 +36,9 @@ jobs:
       - name: Decode keystore from base64
         run: echo "${{ secrets.ORG_ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > my-release-key.keystore
 
+      - name: Install .NET MAUI workloads
+        run: dotnet workload install maui-android
+
       - name: Restore .NET MAUI dependencies
         run: dotnet restore
 
