@@ -80,14 +80,15 @@ jobs:
       # 6️⃣ Commit & push cambios + tag
       - name: Commit & Tag version
         run: |
-          git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
-          git add Transferencias/Transferencias.csproj
-          git commit -m "chore: bump version ${{ env.version }}"
-          git tag ${{ env.version }}
-          git push origin HEAD
-          git push origin ${{ env.version }}
+            git config user.name "github-actions"
+            git config user.email "github-actions@github.com"
+            git add Transferencias/Transferencias.csproj
+            git commit -m "chore: bump version ${{ env.version }}"
+            git tag ${{ env.version }}
+            git push origin HEAD
+            git push origin ${{ env.version }}
         shell: pwsh
+
 
       # 7️⃣ Build MAUI APK Release
       - name: Build MAUI APK Release
