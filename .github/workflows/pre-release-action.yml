@@ -50,25 +50,19 @@ jobs:
           echo "apk_path=$($apkPath.FullName)" >> $env:GITHUB_ENV
         shell: pwsh
 
-      # 6️⃣ Generar tag automático con timestamp
-      # 6️⃣ Generar tag automático con timestamp
       - name: Generate version tag
         id: versioning
         run: |
-            $VERSION_TAG = "prerelease-" + (Get-Date -Format "yyyy-MM-dd-HHmm")
-            echo "version=$VERSION_TAG" >> $env:GITHUB_ENV
-        shell: pwsh
+          VERSION_TAG="prerelease-$(date +'%Y.%m.%d.%H%M')"
+          echo "version=$VERSION_TAG" >> $GITHUB_OUTPUT
 
-
-
-      # 7️⃣ Commit & push tag
       - name: Commit & Tag version
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
-          git tag $env:version
-          git push origin $env:version
-        shell: pwsh
+          git tag ${{ steps.versioning.outputs.version }}
+          git push origin ${{ steps.versioning.outputs.version }}
+          
 
       # 8️⃣ Generar changelog (opcional)
       - name: Generate changelog
