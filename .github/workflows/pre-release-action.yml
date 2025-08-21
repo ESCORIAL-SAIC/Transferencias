@@ -1,19 +1,14 @@
-name: Build MAUI APK with Versioning
+name: Prerelease MAUI APK on Dev Merge
 
 on:
   push:
     branches:
       - ci-cd/setup
   workflow_dispatch:
-    inputs:
-      build_type:
-        description: 'Type of build (prerelease or release)'
-        required: true
-        default: 'prerelease'
 
 jobs:
   build:
-    name: Build Signed MAUI APK and Release
+    name: Build Signed MAUI APK and Prerelease
     runs-on: windows-latest
 
     env:
@@ -43,43 +38,58 @@ jobs:
           Write-Host "Keystore path: $keystorePath"
         shell: pwsh
 
-        # 5️⃣ Incrementar versión en csproj
-      - name: Increment Version in csproj
+      # 5️⃣ Actualizar versión en csproj
+      - name: Update App Version
         id: versioning
         run: |
-            $buildType = "${{ github.event.inputs.build_type }}"
-            [xml]$csproj = Get-Content "Transferencias/Transferencias.csproj"
-            
-            # Obtener versión actual
-            $version = $csproj.Project.PropertyGroup.ApplicationDisplayVersion
-            if (-not $version) { $version = "0.1.0" }
+          $buildType = "prerelease"   # Cambiar a "release" si es build de release
+          [xml]$csproj = Get-Content "Transferencias/Transferencias.csproj"
 
-            $parts = $version -split '\.'
-            $major = [int]$parts[0]
-            $minor = [int]$parts[1]
-            $patch = [int]$parts[2]
+          # Buscar todos los PropertyGroup que tengan ApplicationDisplayVersion
+          $propertyGroups = $csproj.Project.PropertyGroup | Where-Object { $_.ApplicationDisplayVersion }
+          if (-not $propertyGroups) { $propertyGroups = @($csproj.Project.PropertyGroup[0]) }
 
-            # Incrementar según tipo de build
-            if ($buildType -eq "prerelease") {
-                $minor += 1
-            } elseif ($buildType -eq "release") {
-                $major += 1
-                $minor = 0
-                $patch = 0
-            }
+          $version = $propertyGroups[0].ApplicationDisplayVersion
+          if (-not $version) { $version = "0.1.0" }
 
-            $newVersion = "$major.$minor.$patch"
-            $csproj.Project.PropertyGroup.ApplicationDisplayVersion = $newVersion
+          $parts = $version -split '\.'
+          $major = [int]$parts[0]
+          $minor = [int]$parts[1]
+          $patch = [int]$parts[2]
 
-            # NO TOCAR ApplicationVersion, que queda con timestamp
-            $csproj.Save("Transferencias/Transferencias.csproj")
-            
-            Write-Host "New version: $newVersion"
-            echo "version=$newVersion" >> $env:GITHUB_ENV
+          if ($buildType -eq "prerelease") {
+              $minor += 1
+          } elseif ($buildType -eq "release") {
+              $major += 1
+              $minor = 0
+              $patch = 0
+          }
+
+          $newVersion = "$major.$minor.$patch"
+
+          foreach ($pg in $propertyGroups) {
+              $pg.ApplicationDisplayVersion = $newVersion
+          }
+
+          $csproj.Save("Transferencias/Transferencias.csproj")
+
+          Write-Host "New version: $newVersion"
+          echo "version=$newVersion" >> $env:GITHUB_ENV
         shell: pwsh
 
+      # 6️⃣ Commit & push cambios + tag
+      - name: Commit & Tag version
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add Transferencias/Transferencias.csproj
+          git commit -m "chore: bump version ${{ env.version }}"
+          git tag ${{ env.version }}
+          git push origin HEAD
+          git push origin ${{ env.version }}
+        shell: pwsh
 
-      # 6️⃣ Build MAUI APK
+      # 7️⃣ Build MAUI APK Release
       - name: Build MAUI APK Release
         run: |
           $keystorePath = Join-Path $PWD "my-release-key.keystore"
@@ -88,17 +98,6 @@ jobs:
           
           $apkPath = Get-ChildItem $outputDir -Filter *.apk | Select-Object -First 1
           echo "apk_path=$($apkPath.FullName)" >> $env:GITHUB_ENV
-        shell: pwsh
-
-      # 7️⃣ Commit & push tag
-      - name: Commit & Tag version
-        run: |
-          git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
-          git add Transferencias/Transferencias.csproj
-          git commit -m "chore: bump version to ${{ env.version }}"
-          git tag ${{ env.version }}
-          git push origin HEAD --tags
         shell: pwsh
 
       # 8️⃣ Generar changelog
@@ -110,14 +109,14 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # 9️⃣ Crear release en GitHub
-      - name: Create GitHub Release
+      # 9️⃣ Crear GitHub Prerelease y subir APK
+      - name: Create GitHub Prerelease
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ env.version }}
-          name: "Dev Release ${{ env.version }}"
+          name: Dev Prerelease ${{ env.version }}
           body: ${{ steps.changelog.outputs.changelog }}
           files: ${{ env.apk_path }}
-          prerelease: ${{ github.event.inputs.build_type == 'prerelease' }}
+          prerelease: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
