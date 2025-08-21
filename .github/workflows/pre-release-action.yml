@@ -50,11 +50,12 @@ jobs:
           echo "apk_path=$($apkPath.FullName)" >> $env:GITHUB_ENV
         shell: pwsh
 
-      - name: Generate version tag
-        id: versioning
+      - name: Set VERSION_TAG
         run: |
-          VERSION_TAG="prerelease-$(date +'%Y.%m.%d.%H%M')"
-          echo "version=$VERSION_TAG" >> $GITHUB_OUTPUT
+            $VERSION_TAG = "prerelease-$(Get-Date -Format 'yyyy.MM.dd.HHmm')"
+            echo "version=$VERSION_TAG" >> $env:GITHUB_OUTPUT
+        shell: pwsh
+
 
       - name: Commit & Tag version
         run: |
@@ -62,7 +63,7 @@ jobs:
           git config user.email "github-actions@github.com"
           git tag ${{ steps.versioning.outputs.version }}
           git push origin ${{ steps.versioning.outputs.version }}
-          
+
 
       # 8️⃣ Generar changelog (opcional)
       - name: Generate changelog
