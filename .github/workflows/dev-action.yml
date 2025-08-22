@@ -1,10 +1,10 @@
 name: Prerelease MAUI APK on Dev Merge
 
 on:
-  push:
+  pull_request:
+    types: [closed]   # Solo se dispara al cerrar un PR
     branches:
       - dev
-  workflow_dispatch:   
 
 jobs:
   build:
@@ -37,27 +37,24 @@ jobs:
       - name: Detect PR labels
         id: labels
         uses: actions/github-script@v7
+        if: github.event.pull_request.merged == true   # Solo si el PR fue mergeado
         with:
-            github-token: ${{ secrets.GITHUB_TOKEN }}
-            script: |
-                const pr = await github.rest.pulls.get({
-                    owner: context.repo.owner,
-                    repo: context.repo.repo,
-                    pull_number: context.payload.pull_request.number
-                });
-                const labels = pr.data.labels.map(l => l.name.toLowerCase());
-                let releaseType = "bugfix";
-                if (labels.includes("breaking")) releaseType = "breaking";
-                else if (labels.includes("feature")) releaseType = "feature";
-                else if (labels.includes("bugfix")) releaseType = "bugfix";
-                core.exportVariable("RELEASE_TYPE", releaseType);
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const pr = context.payload.pull_request;
+            const labels = pr.labels.map(l => l.name.toLowerCase());
+            let releaseType = "bugfix";
+            if (labels.includes("breaking")) releaseType = "breaking";
+            else if (labels.includes("feature")) releaseType = "feature";
+            else if (labels.includes("bugfix")) releaseType = "bugfix";
+            core.exportVariable("RELEASE_TYPE", releaseType);
 
       - name: Update App Version
         id: versioning
         run: |
             # PowerShell + GitHub env
-            $buildType = "release"   # prerelease si corresponde
-            $releaseType = $env:RELEASE_TYPE  # valor inyectado por paso previo de labels: bugfix, feature, breaking
+            $releaseType = $env:RELEASE_TYPE
+            if (-not $releaseType) { $releaseType = "bugfix" }  # fallback
 
             [xml]$csproj = Get-Content "Transferencias/Transferencias.csproj"
 
@@ -103,7 +100,7 @@ jobs:
             git push origin $newVersion
         shell: pwsh
         env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build MAUI APK Release
         run: |
