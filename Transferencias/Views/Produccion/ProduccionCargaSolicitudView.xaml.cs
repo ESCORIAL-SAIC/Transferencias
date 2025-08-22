@@ -160,7 +160,7 @@ public partial class ProduccionCargaSolicitudView
             if (stockBajo)
             {
                 var continua = await Message.Confirmation(this,
-                    "El stock contabilizado en el almacén de origen es menor al solicitado, lo cual podría demorar la transferencia. Desea continuar de todas formas?");
+                    "El stock contabilizado en el almacï¿½n de origen es menor al solicitado, lo cual podrï¿½a demorar la transferencia. Desea continuar de todas formas?");
                 if (!continua)
                     return null;
             }
@@ -169,6 +169,8 @@ public partial class ProduccionCargaSolicitudView
         }
         finally
         {
+            BarcodeEntry.Text = string.Empty;
+            BarcodeEntry.Focus();
             Config.CloseLoadingPopup();
         }
     }
@@ -185,17 +187,17 @@ public partial class ProduccionCargaSolicitudView
 
     private async Task SwitchToManualAsync()
     {
-        try { await CameraView.StopCameraAsync(); } catch { /* ignora si ya está detenida */ }
+        try { await CameraView.StopCameraAsync(); } catch { /* ignora si ya estï¿½ detenida */ }
         CameraLayer.IsVisible = false;
         ManualLayer.IsVisible = true;
-        Codigo.Focus();
+        BarcodeEntry.Focus();
     }
 
     private async Task SwitchToCameraAsync()
     {
         ManualLayer.IsVisible = false;
         CameraLayer.IsVisible = true;
-        try { await CameraView.StartCameraAsync(); } catch { /* maneja si no hay permiso/cámara */ }
+        try { await CameraView.StartCameraAsync(); } catch { /* maneja si no hay permiso/cï¿½mara */ }
     }
 
     protected override void OnAppearing()
