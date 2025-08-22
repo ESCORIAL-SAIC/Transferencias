@@ -46,7 +46,7 @@ public partial class AlmacenNuevaTransferenciaView
                 return;
             if (!SolicitudTransferencia.ItemsSolicitudTransferencia.Any(x => x.Pickeado == true))
             {
-                await DisplayAlert(AppStrings.AlertErrorTitle, "No se encontraron items pickeados para añadir a la transaccion", AppStrings.AlertOkButton);
+                await DisplayAlert(AppStrings.AlertErrorTitle, "No se encontraron items pickeados para aï¿½adir a la transaccion", AppStrings.AlertOkButton);
                 return;
             }
 
@@ -63,7 +63,7 @@ public partial class AlmacenNuevaTransferenciaView
             var destination = await Config.GetDestination();
             if (origin is null || destination is null)
             {
-                await Message.Error(this, "No se encontraron los depósitos de origen o destino");
+                await Message.Error(this, "No se encontraron los depï¿½sitos de origen o destino");
                 return;
             }
 
@@ -86,7 +86,7 @@ public partial class AlmacenNuevaTransferenciaView
                 await Navigation.PopModalAsync();
                 return;
             }
-            await DisplayAlert(AppStrings.AlertErrorTitle, "No se cargó la transferencia", AppStrings.AlertOkButton);
+            await DisplayAlert(AppStrings.AlertErrorTitle, "No se cargï¿½ la transferencia", AppStrings.AlertOkButton);
 
         }
         catch (Exception ex)
@@ -210,7 +210,7 @@ public partial class AlmacenNuevaTransferenciaView
         {
             await MainThread.InvokeOnMainThreadAsync(async () =>
             {
-                await DisplayAlert(AppStrings.AlertErrorTitle, $"Error procesando el código de barras: {ex.Message}", AppStrings.AlertOkButton);
+                await DisplayAlert(AppStrings.AlertErrorTitle, $"Error procesando el cï¿½digo de barras: {ex.Message}", AppStrings.AlertOkButton);
             });
         }
     }
@@ -240,17 +240,17 @@ public partial class AlmacenNuevaTransferenciaView
 
     private async Task SwitchToManualAsync()
     {
-        try { await CameraView.StopCameraAsync(); } catch { /* ignora si ya está detenida */ }
+        try { await CameraView.StopCameraAsync(); } catch { /* ignora si ya estï¿½ detenida */ }
         CameraLayer.IsVisible = false;
         ManualLayer.IsVisible = true;
-        Codigo.Focus();
+        BarcodeEntry.Focus();
     }
 
     private async Task SwitchToCameraAsync()
     {
         ManualLayer.IsVisible = false;
         CameraLayer.IsVisible = true;
-        try { await CameraView.StartCameraAsync(); } catch { /* maneja si no hay permiso/cámara */ }
+        try { await CameraView.StartCameraAsync(); } catch { /* maneja si no hay permiso/cï¿½mara */ }
     }
 
     protected override void OnAppearing()
@@ -280,6 +280,8 @@ public partial class AlmacenNuevaTransferenciaView
             }
             finally
             {
+                entry.Text = string.Empty;
+                entry.Focus();
                 Config.CloseLoadingPopup();
             }
         }

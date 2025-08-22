@@ -56,7 +56,7 @@
                         HorizontalOptions="Fill"
                         StrokeThickness="2">
 
-                        <Entry x:Name="Codigo"
+                        <Entry x:Name="BarcodeEntry"
                            Placeholder="Ingrese código..."
                            Completed="Codigo_Completed"
                            VerticalOptions="Center" />
