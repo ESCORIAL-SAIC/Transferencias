@@ -243,6 +243,7 @@ public partial class AlmacenNuevaTransferenciaView
         try { await CameraView.StopCameraAsync(); } catch { /* ignora si ya est� detenida */ }
         CameraLayer.IsVisible = false;
         ManualLayer.IsVisible = true;
+        BarcodeEntry.Text = string.Empty;
         BarcodeEntry.Focus();
     }
 
