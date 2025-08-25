@@ -27,7 +27,7 @@ namespace Transferencias
     		builder.Logging.AddDebug();
 #endif
 
-            builder.Services.AddSingleton<DatabaseContext>();
+            builder.Services.AddSingleton<DatabaseService>();
             Microsoft.Maui.Handlers.PickerHandler.Mapper.AppendToMapping("Placeholder", (h, v) =>
             {
 #if ANDROID

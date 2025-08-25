@@ -5,119 +5,151 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:cv="clr-namespace:Camera.MAUI;assembly=Camera.MAUI"
     xmlns:controls="clr-namespace:Transferencias.Controls"
+    xmlns:m="clr-namespace:UraniumUI.Icons.MaterialIcons;assembly=UraniumUI.Icons.MaterialIcons"
     Shell.NavBarIsVisible="False">
-    <Grid Padding="0,0" RowDefinitions="Auto,8*,*">
+    <Grid Padding="0,0" RowDefinitions="Auto,*,Auto">
         <controls:TopBar
             Grid.Row="0"
             UseLogoutButton="True"
             ShowUserData="True" />
         <Grid
             Grid.Row="1"
-            Padding="20,10"
-            RowDefinitions="Auto,Auto,Auto,Auto,*"
-            RowSpacing="20">
-            <Border
-                Grid.Row="0"
-                Margin="5"
-                Stroke="Transparent"
-                StrokeShape="RoundRectangle 10"
-                StrokeThickness="0">
-                <cv:CameraView
-                    x:Name="CameraView"
-                    BarCodeDetectionEnabled="True"
-                    BarcodeDetected="CameraView_BarcodeDetected"
-                    CamerasLoaded="CameraView_CamerasLoaded"
-                    HeightRequest="150"
-                    WidthRequest="500" />
-            </Border>
-            <Label
-                x:Name="BarcodeResult"
-                Grid.Row="1"
-                FontSize="20"
-                Text="Escaneando código..." />
-            <BoxView
-                Grid.Row="2"
-                Grid.RowSpan="3"
-                Margin="-20,-10,-20,-20"
-                BackgroundColor="{StaticResource Primary}"
-                HorizontalOptions="FillAndExpand"
-                VerticalOptions="Fill"
-                ZIndex="-1" />
-            <Label
-                x:Name="NumeroSolicitudLabel"
-                Grid.Row="2"
-                FontAttributes="Bold"
-                FontSize="Subtitle"
-                Text="{Binding SolicitudTransferencia.NombreSolicitud}"
-                TextColor="{StaticResource Gray100}" />
-            <Label
-                Grid.Row="3"
-                FontAttributes="Bold"
-                FontSize="Subtitle"
-                Text="Items:"
-                TextColor="{StaticResource Gray100}" />
-            <ListView
-                x:Name="ItemsListView"
-                Grid.Row="4"
-                Margin="0,20,0,0"
-                ItemsSource="{Binding SolicitudTransferencias.ItemsSolicitudTransferencia}"
-                SelectionMode="Single"
-                SeparatorColor="Transparent"
-                VerticalOptions="FillAndExpand"
-                VerticalScrollBarVisibility="Always">
-                <ListView.ItemTemplate>
-                    <DataTemplate>
-                        <ViewCell>
-                            <Grid
-                                Margin="0,5"
-                                Padding="0"
-                                HeightRequest="42"
-                                VerticalOptions="FillAndExpand">
-                                <BoxView
-                                    BackgroundColor="{AppThemeBinding Light={StaticResource Gray100},
-                                                                      Dark={StaticResource Gray600}}"
-                                    CornerRadius="10"
-                                    HorizontalOptions="FillAndExpand"
-                                    VerticalOptions="FillAndExpand"
-                                    ZIndex="-1" />
-                                <Grid Padding="5,0,0,0" ColumnSpacing="10">
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition />
-                                    </Grid.RowDefinitions>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto" />
-                                        <ColumnDefinition Width="*" />
-                                        <ColumnDefinition Width="Auto" />
-                                        <ColumnDefinition Width="Auto" />
-                                    </Grid.ColumnDefinitions>
-                                    <Label
-                                        Grid.Column="0"
-                                        FontAttributes="Bold"
-                                        Text="{Binding Producto.Codigo}"
-                                        VerticalOptions="Center" />
-                                    <Label
-                                        Grid.Column="1"
-                                        FontSize="Default"
-                                        Text="{Binding Producto.Descripcion}"
-                                        VerticalOptions="Center" />
-                                    <Label
-                                        Grid.Column="2"
-                                        FontAttributes="Bold"
-                                        FontSize="Subtitle"
-                                        Text="{Binding Cantidad}"
-                                        VerticalOptions="Center" />
-                                    <CheckBox
-                                        Grid.Column="3"
-                                        IsChecked="{Binding Pickeado}"
-                                        IsEnabled="False"
-                                        VerticalOptions="Center"
-                                        Color="White" />
+            RowDefinitions="Auto,Auto,*"
+            Margin="0,0,0,10">
+            <Grid Grid.Row="0" Padding="20,10">
+                <Grid x:Name="CameraLayer"
+                    HorizontalOptions="Center"
+                    VerticalOptions="Center">
+                    <Border
+                        Margin="10"
+                        Stroke="Transparent"
+                        StrokeShape="RoundRectangle 10">
+                        <cv:CameraView
+                            x:Name="CameraView"
+                            BarCodeDetectionEnabled="True"
+                            BarcodeDetected="CameraView_BarcodeDetected"
+                            CamerasLoaded="CameraView_CamerasLoaded"
+                            WidthRequest="400"
+                            HeightRequest="150"
+                            HorizontalOptions="Center"
+                            VerticalOptions="Center">
+                            <cv:CameraView.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnCameraTapped" />
+                            </cv:CameraView.GestureRecognizers>
+                        </cv:CameraView>
+                    </Border>
+                </Grid>
+
+                <Grid x:Name="ManualLayer"
+                    IsVisible="False"
+                    HorizontalOptions="Fill"
+                    VerticalOptions="Center"
+                    Padding="10"
+                    ColumnSpacing="5"
+                    ColumnDefinitions="*,Auto">
+
+                    <Border
+                        Grid.Column="0"
+                        Padding="10,3"
+                        Stroke="{StaticResource Primary}"
+                        StrokeShape="RoundRectangle 30,30,30,30"
+                        HorizontalOptions="Fill"
+                        StrokeThickness="2">
+
+                        <Entry x:Name="BarcodeEntry"
+                           Placeholder="Ingrese código..."
+                           Completed="Codigo_Completed"
+                           VerticalOptions="Center" />
+                    </Border>
+
+                    <Button Grid.Column="1"
+                        Clicked="OnBackToCameraClicked"
+                        HeightRequest="48"
+                        WidthRequest="48"
+                        HorizontalOptions="Center"
+                        VerticalOptions="Center">
+                        <Button.ImageSource>
+                            <FontImageSource FontFamily="MaterialRegular"
+                                Glyph="{x:Static m:MaterialRegular.Cameraswitch}" />
+                        </Button.ImageSource>
+                    </Button>
+
+                </Grid>
+            </Grid>
+            <Grid Grid.Row="2" 
+                RowDefinitions="Auto,*"
+                Padding="20,10,20,0"
+                BackgroundColor="{StaticResource Primary}" >
+                <Label
+                    x:Name="NumeroSolicitudLabel"
+                    Grid.Row="0"
+                    FontAttributes="Bold"
+                    Margin="0,0,0,10"
+                    FontSize="Subtitle"
+                    Text="{Binding SolicitudTransferencia.NombreSolicitud}"
+                    TextColor="{StaticResource Gray100}" />
+                <ListView
+                    x:Name="ItemsListView"
+                    Grid.Row="1"
+                    ItemsSource="{Binding SolicitudTransferencias.ItemsSolicitudTransferencia}"
+                    SelectionMode="Single"
+                    SeparatorColor="Transparent"
+                    VerticalOptions="Fill"
+                    VerticalScrollBarVisibility="Always">
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <ViewCell>
+                                <Grid
+                                    Margin="0,5"
+                                    Padding="0"
+                                    HeightRequest="42"
+                                    VerticalOptions="Fill">
+                                    <BoxView
+                                        BackgroundColor="{AppThemeBinding Light={StaticResource Gray100},
+                                                                          Dark={StaticResource Gray600}}"
+                                        CornerRadius="10"
+                                        HorizontalOptions="Fill"
+                                        VerticalOptions="Fill"
+                                        ZIndex="-1" />
+                                    <Grid Padding="5,0,0,0" ColumnSpacing="10">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition />
+                                        </Grid.RowDefinitions>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <Label
+                                            Grid.Column="0"
+                                            FontAttributes="Bold"
+                                            Text="{Binding Producto.Codigo}"
+                                            VerticalOptions="Center" />
+                                        <Label
+                                            Grid.Column="1"
+                                            FontSize="Default"
+                                            Text="{Binding Producto.Descripcion}"
+                                            VerticalOptions="Center" />
+                                        <Label
+                                            Grid.Column="2"
+                                            FontAttributes="Bold"
+                                            FontSize="Subtitle"
+                                            Text="{Binding Cantidad}"
+                                            VerticalOptions="Center" />
+                                        <CheckBox
+                                            Grid.Column="3"
+                                            IsChecked="{Binding Pickeado}"
+                                            IsEnabled="False"
+                                            VerticalOptions="Center"
+                                            Color="White" />
+                                    </Grid>
                                 </Grid>
-                            </Grid>
-                        </ViewCell>
-                    </DataTemplate>
-                </ListView.ItemTemplate>
-            </ListView>
+                            </ViewCell>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+            </Grid>
         </Grid>
         <Button
             x:Name="ConfirmarButton"
@@ -126,6 +158,6 @@
             Pressed="ConfirmarButton_OnPressed"
             Text="Confirmar"
             VerticalOptions="End"
-            WidthRequest="200" />
+            MaximumWidthRequest="200" />
     </Grid>
 </ContentPage>

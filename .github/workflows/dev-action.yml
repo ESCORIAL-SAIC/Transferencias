@@ -1,0 +1,124 @@
+name: Prerelease MAUI APK on Dev Merge
+
+on:
+  pull_request:
+    types: [closed] 
+    branches:
+      - dev
+
+jobs:
+  build:
+    name: Build Signed MAUI APK and Prerelease
+    runs-on: windows-latest
+
+    env:
+      DOTNET_CLI_TELEMETRY_OPTOUT: 1
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Install MAUI workload
+        run: dotnet workload install maui
+        shell: pwsh
+
+      - name: Decode keystore from base64
+        run: |
+          $keystorePath = Join-Path $PWD "my-release-key.keystore"
+          [System.IO.File]::WriteAllBytes($keystorePath, [Convert]::FromBase64String("${{ secrets.ORG_ANDROID_KEYSTORE_BASE64 }}"))
+          Write-Host "Keystore path: $keystorePath"
+        shell: pwsh
+
+      - name: Detect PR labels
+        id: labels
+        uses: actions/github-script@v7
+        if: github.event.pull_request.merged == true   # Solo si el PR fue mergeado
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const pr = context.payload.pull_request;
+            const labels = pr.labels.map(l => l.name.toLowerCase());
+            let releaseType = "bugfix";
+            if (labels.includes("breaking")) releaseType = "breaking";
+            else if (labels.includes("feature")) releaseType = "feature";
+            else if (labels.includes("bugfix")) releaseType = "bugfix";
+            core.exportVariable("RELEASE_TYPE", releaseType);
+
+      - name: Update App Version
+        id: versioning
+        run: |
+            # PowerShell + GitHub env
+            $releaseType = $env:RELEASE_TYPE
+            if (-not $releaseType) { $releaseType = "bugfix" }  # fallback
+
+            [xml]$csproj = Get-Content "Transferencias/Transferencias.csproj"
+
+            # Buscar todos los PropertyGroup que tengan ApplicationDisplayVersion
+            $propertyGroups = $csproj.Project.PropertyGroup | Where-Object { $_.ApplicationDisplayVersion }
+            if (-not $propertyGroups) { $propertyGroups = @($csproj.Project.PropertyGroup[0]) }
+
+            # Tomar versión actual
+            $version = $propertyGroups[0].ApplicationDisplayVersion
+            if (-not $version) { $version = "0.1.0" }
+
+            $parts = $version -split '\.'
+            $major = [int]$parts[0]
+            $minor = [int]$parts[1]
+            $patch = [int]($parts[2] -replace '-dev','')
+
+            # Incrementar según tipo de release
+            switch ($releaseType) {
+                "bugfix"   { $patch += 1 }
+                "feature"  { $minor += 1; $patch = 0 }
+                "breaking" { $major += 1; $minor = 0; $patch = 0 }
+            }
+
+            $newVersion = "$major.$minor.$patch-dev"
+
+            # Actualizar todos los PropertyGroup
+            foreach ($pg in $propertyGroups) {
+                $pg.ApplicationDisplayVersion = $newVersion
+            }
+
+            $csproj.Save("Transferencias/Transferencias.csproj")
+
+            Write-Host "New version: $newVersion"
+            echo "version=$newVersion" >> $env:GITHUB_ENV
+
+            # Commit y tag
+            git config user.name "github-actions"
+            git config user.email "github-actions@github.com"
+            git add Transferencias/Transferencias.csproj
+            git commit -m "chore: bump version $newVersion"
+            git tag $newVersion
+            git push origin HEAD
+            git push origin $newVersion
+        shell: pwsh
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build MAUI APK Release
+        run: |
+          $keystorePath = Join-Path $PWD "my-release-key.keystore"
+          $outputDir = Join-Path $PWD "output"
+          dotnet publish "Transferencias/Transferencias.csproj" -f net8.0-android -c Release -o $outputDir /p:AndroidPackageFormat=apk /p:AndroidKeyStore=true /p:AndroidSigningKeyStore=$keystorePath /p:AndroidSigningKeyAlias="${{ secrets.ORG_ANDROID_KEY_ALIAS }}" /p:AndroidSigningKeyPass="${{ secrets.ORG_ANDROID_KEY_PASSWORD }}" /p:AndroidSigningStorePass="${{ secrets.ORG_ANDROID_KEYSTORE_PASSWORD }}" /p:PublishTrimmed=true /p:RunAOTCompilation=true /p:EmbedAssembliesIntoApk=true
+          
+          $apkPath = Get-ChildItem $outputDir -Filter *.apk | Select-Object -First 1
+          echo "apk_path=$($apkPath.FullName)" >> $env:GITHUB_ENV
+        shell: pwsh
+
+      - name: Create GitHub Prerelease
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.version }}
+          name: Transferencias (pre-release) - ${{ env.version }}
+          body: ${{ env.version }}
+          files: ${{ env.apk_path }}
+          prerelease: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
