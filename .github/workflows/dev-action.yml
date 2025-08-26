@@ -9,6 +9,7 @@ on:
 jobs:
   build:
     name: Build Signed MAUI APK and Prerelease
+    if: github.event.pull_request.merged == true
     runs-on: windows-latest
 
     env:
