@@ -92,6 +92,8 @@ jobs:
             $csproj.Save("Transferencias/Transferencias.csproj")
 
             Write-Host "New version: $newVersion"
+            Write-Host "Version code: $newVersionCode"
+            
             echo "version=$newVersion" >> $env:GITHUB_ENV
             echo "versionCode=$newVersionCode" >> $env:GITHUB_ENV
 
@@ -119,7 +121,7 @@ jobs:
           $newApkPath = Join-Path $outputDir $newApkName
           Rename-Item $apkPath.FullName $newApkPath
 
-          echo "apk_path=$($apkPath.FullName)" >> $env:GITHUB_ENV
+          echo "apk_path=$newApkPath" >> $env:GITHUB_ENV
         shell: pwsh
 
       - name: Create GitHub Prerelease
