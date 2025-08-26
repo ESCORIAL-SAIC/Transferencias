@@ -91,6 +91,7 @@ jobs:
 
             $csproj.Save("Transferencias/Transferencias.csproj")
 
+            Write-Host "Run number: $runNumber"
             Write-Host "New version: $newVersion"
             Write-Host "Version code: $newVersionCode"
 
