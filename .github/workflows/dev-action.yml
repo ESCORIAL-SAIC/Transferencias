@@ -93,7 +93,7 @@ jobs:
 
             Write-Host "New version: $newVersion"
             Write-Host "Version code: $newVersionCode"
-            
+
             echo "version=$newVersion" >> $env:GITHUB_ENV
             echo "versionCode=$newVersionCode" >> $env:GITHUB_ENV
 
@@ -117,7 +117,7 @@ jobs:
           
           $apkPath = Get-ChildItem $outputDir -Filter *.apk | Select-Object -First 1
 
-          $newApkName = "com.escorial.transferencias-prerelease-${{ env.version }}-${{ env.versionCode }}.apk"
+          $newApkName = "com.escorial.transferencias-${{ env.version }}-${{ env.versionCode }}.apk"
           $newApkPath = Join-Path $outputDir $newApkName
           Rename-Item $apkPath.FullName $newApkPath
 
