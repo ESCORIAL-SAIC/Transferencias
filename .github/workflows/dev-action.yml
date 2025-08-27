@@ -181,7 +181,7 @@ jobs:
           cp "$APK_FILE" ./repo/
           
           echo "Actualizando el repositorio F-Droid..."
-          fdroid update --create-missing-keys --verbose --no-sign
+          fdroid update -c
       
       - name: Configurar Git y hacer push de los cambios
         run: |
