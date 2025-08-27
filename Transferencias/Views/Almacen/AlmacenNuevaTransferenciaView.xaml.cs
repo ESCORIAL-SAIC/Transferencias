@@ -27,7 +27,7 @@ public partial class AlmacenNuevaTransferenciaView
     }
 
     private async void AlmacenNuevaTransferenciaView_Appearing(object? sender, EventArgs e) => await LoadData();
-    private void CameraView_CamerasLoaded(object sender, EventArgs e) => LoadCameras();
+    private async void CameraView_CamerasLoaded(object sender, EventArgs e) => await LoadCameras();
     private void CameraView_BarcodeDetected(object sender, BarcodeEventArgs args) => OnBarcodeDetected(args);
     private async void ConfirmarButton_OnPressed(object? sender, EventArgs e) => await NewTransfer();
 
@@ -81,7 +81,7 @@ public partial class AlmacenNuevaTransferenciaView
             var isCreated = await Fun.CreateNewTransfer(nuevaTransferencia);
             if (isCreated)
             {
-                await Fun.UpdateOriginIfAllItemsPickedAsync(solicitudOriginal);
+                await Fun.UpdateOriginIfAllItemsPickedAsync(solicitudOriginal!);
                 await DisplayAlert(AppStrings.AlertSuccessTitle, "Transferencia cargada correctamente.\nQueda pendiente de aceptacion", AppStrings.AlertOkButton);
                 await Navigation.PopModalAsync();
                 return;
