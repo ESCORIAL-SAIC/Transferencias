@@ -139,49 +139,57 @@ jobs:
 
 
 
-      # --- Pasos específicos para F-Droid ---
 
-      - name: Clonar el repositorio F-Droid
+      - name: Subir APK como artefacto
+        uses: actions/upload-artifact@v3
+        with:
+          name: maui-apk
+          path: ${{ env.apk_path }}
+          retention-days: 1
+          
+  fdroid-publish:
+    name: Publicar en F-Droid Repo
+    needs: build
+    runs-on: ubuntu-latest
+    if: success() && github.event.pull_request.merged == true
+    
+    steps:
+      - name: Checkout del repositorio principal
+        uses: actions/checkout@v3
+
+      - name: Descargar el APK de la compilación anterior
+        uses: actions/download-artifact@v3
+        with:
+          name: maui-apk
+      
+      - name: Checkout del repositorio de F-Droid
         uses: actions/checkout@v3
         with:
           repository: ESCORIAL-SAIC/fdroidrepo
-          path: fdroidrepo
-          token: ${{ secrets.ORG_FDROID_REPO_TOKEN }} # Requiere un PAT
-
-      - name: Instalar fdroidserver
-        shell: bash
-        run: |
-          sudo apt-get update
-          sudo apt-get install fdroidserver -y
-
-      - name: Copiar APK al repositorio F-Droid
-        shell: bash
-        run: |
-          cp "${{ env.apk_path }}" fdroidrepo/repo/
-
-      - name: Actualizar y firmar el repositorio F-Droid
-        shell: bash
-        run: |
-          cd fdroidrepo
-          # Se omite --latest-version para que las betas no se marquen como la última versión
-          fdroid update --create-missing-metadata --no-sync --verbose
-        env:
-          # Usar las mismas claves que se usaron para firmar la app
-          FDROID_KEYSTORE_FILE: ${{ steps.decode_keystore.outputs.keystore_path }}
-          FDROID_KEY_ALIAS: ${{ secrets.ORG_ANDROID_KEY_ALIAS }}
-          FDROID_KEY_PASSWORD: ${{ secrets.ORG_ANDROID_KEY_PASSWORD }}
-          FDROID_KEYSTORE_PASSWORD: ${{ secrets.ORG_ANDROID_KEYSTORE_PASSWORD }}
-          # Configurar para que la herramienta no intente clonar fuentes que no existen
-          FDROID_DISABLE_UPDATE_CHECK: true
+          token: ${{ secrets.ORG_FDROID_REPO_TOKEN }}
+          path: fdroid-repo
       
-      - name: Subir cambios al repositorio F-Droid
-        shell: bash
+      - name: Instalar fdroidserver
+        run: sudo apt-get update && sudo apt-get install fdroidserver -y
+        
+      - name: Importar APK y actualizar el repo
+        working-directory: fdroid-repo
         run: |
-          cd fdroidrepo
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+          APK_FILE=$(find ../ -name "*.apk" -print -quit)
+          
+          echo "Importando $APK_FILE al repositorio F-Droid..."
+          fdroid import $APK_FILE --verbose --overwrite --no-sign
+          
+          echo "Actualizando el repositorio F-Droid..."
+          fdroid update --create-missing-keys --verbose --no-sign
+      
+      - name: Configurar Git y hacer push de los cambios
+        run: |
+          cd fdroid-repo
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
           git add .
-          git commit -m "chore: F-Droid repo update for ${{ env.version }}" || true # El || true evita que la acción falle si no hay cambios
-          git push origin main
+          git commit -m "chore: Actualizar repositorio F-Droid con nueva versión de app"
+          git push
         env:
-          GITHUB_TOKEN: ${{ secrets.ORG_FDROID_REPO_TOKEN }} # Usar el token para la subida
+          GITHUB_TOKEN: ${{ secrets.ORG_FDROID_REPO_TOKEN }}
