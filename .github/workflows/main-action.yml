@@ -58,9 +58,19 @@ jobs:
           # Para release no se incrementa automáticamente; solo quitar el -dev
           $newVersion = "$major.$minor.$patch"
 
+          $runNumber = $env:GITHUB_RUN_NUMBER
+            $newVersionCode = $runNumber + ($major*10000) + ($minor*100) + $patch
+
+          # Actualizar todos los PropertyGroup
           foreach ($pg in $propertyGroups) {
               $pg.ApplicationDisplayVersion = $newVersion
+              $pg.ApplicationVersion = $newVersionCode
           }
+
+
+          Write-Host "Run number: $runNumber"
+          Write-Host "New version: $newVersion"
+          Write-Host "Version code: $newVersionCode"
 
           $csproj.Save("Transferencias/Transferencias.csproj")
 
@@ -99,3 +109,59 @@ jobs:
           prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+
+
+      - name: Subir APK como artefacto
+        uses: actions/upload-artifact@v4
+        with:
+          name: maui-apk
+          path: ${{ env.apk_path }}
+          retention-days: 1
+          
+  fdroid-publish:
+    name: Publicar en F-Droid Repo
+    needs: build
+    runs-on: ubuntu-latest
+    if: success() && github.event.pull_request.merged == true
+    
+    steps:
+      - name: Checkout del repositorio principal
+        uses: actions/checkout@v3
+
+      - name: Descargar el APK de la compilación anterior
+        uses: actions/download-artifact@v4
+        with:
+          name: maui-apk
+      
+      - name: Checkout del repositorio de F-Droid
+        uses: actions/checkout@v3
+        with:
+          repository: ESCORIAL-SAIC/fdroidrepo
+          token: ${{ secrets.ORG_FDROID_REPO_TOKEN }}
+          path: fdroid-repo
+      
+      - name: Instalar fdroidserver
+        run: sudo apt-get update && sudo apt-get install fdroidserver -y
+        
+      - name: Importar APK y actualizar el repo
+        working-directory: fdroid-repo
+        run: |
+          APK_FILE=$(find ../ -name "*.apk" -print -quit)
+          
+          echo "Copiando $APK_FILE al directorio del repositorio F-Droid..."
+          cp "$APK_FILE" ./repo/
+          
+          echo "Actualizando el repositorio F-Droid..."
+          fdroid update -c
+      
+      - name: Configurar Git y hacer push de los cambios
+        run: |
+          cd fdroid-repo
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add .
+          git commit -m "chore: Actualizar repositorio F-Droid con nueva versión de app"
+          git push
+        env:
+          GITHUB_TOKEN: ${{ secrets.ORG_FDROID_REPO_TOKEN }}
