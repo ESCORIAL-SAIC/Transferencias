@@ -177,8 +177,8 @@ jobs:
         run: |
           APK_FILE=$(find ../ -name "*.apk" -print -quit)
           
-          echo "Importando $APK_FILE al repositorio F-Droid..."
-          fdroid import $APK_FILE --verbose --overwrite --no-sign
+          echo "Copiando $APK_FILE al directorio del repositorio F-Droid..."
+          cp "$APK_FILE" ./repo/
           
           echo "Actualizando el repositorio F-Droid..."
           fdroid update --create-missing-keys --verbose --no-sign
