@@ -149,17 +149,21 @@ jobs:
           token: ${{ secrets.ORG_FDROID_REPO_TOKEN }} # Requiere un PAT
 
       - name: Instalar fdroidserver
+        shell: bash
         run: |
           sudo apt-get update
           sudo apt-get install fdroidserver -y
 
       - name: Copiar APK al repositorio F-Droid
+        shell: bash
         run: |
           cp "${{ env.apk_path }}" fdroidrepo/repo/
 
       - name: Actualizar y firmar el repositorio F-Droid
+        shell: bash
         run: |
           cd fdroidrepo
+          # Se omite --latest-version para que las betas no se marquen como la última versión
           fdroid update --create-missing-metadata --no-sync --verbose
         env:
           # Usar las mismas claves que se usaron para firmar la app
@@ -171,6 +175,7 @@ jobs:
           FDROID_DISABLE_UPDATE_CHECK: true
       
       - name: Subir cambios al repositorio F-Droid
+        shell: bash
         run: |
           cd fdroidrepo
           git config user.name "github-actions[bot]"
