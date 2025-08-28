@@ -82,7 +82,7 @@ jobs:
             $newVersion = "$major.$minor.$patch-dev"
 
             $runNumber = $env:GITHUB_RUN_NUMBER
-            $newVersionCode = $runNumber + ($major*10000) + ($minor*100) + $patch
+            $newVersionCode = [int]$runNumber + ([int]$major * 10000) + ([int]$minor * 100) + [int]$patch
 
             # Actualizar todos los PropertyGroup
             foreach ($pg in $propertyGroups) {
@@ -178,7 +178,7 @@ jobs:
         run: |
           echo "Buscando APK dentro del artifact maui-apk..."
           DOWNLOADED_APK_PATH=$(ls ../downloaded-apk/*.apk)
-          
+
           if [ -z "$DOWNLOADED_APK_PATH" ]; then
             echo "❌ No se encontró ningún APK en el artifact 'maui-apk'"
             exit 1
