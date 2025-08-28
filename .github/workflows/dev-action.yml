@@ -144,7 +144,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: maui-apk
-          path: ${{ env.apk_path }}
+          path: ./downloaded-apk   
           retention-days: 1
           
   fdroid-publish:
@@ -175,8 +175,8 @@ jobs:
       - name: Importar APK y actualizar el repo
         working-directory: fdroid-repo
         run: |
-          echo "Buscando APK dentro del artifact maui-apk..."
-          DOWNLOADED_APK_PATH=$(ls $GITHUB_WORKSPACE/maui-apk/*.apk)
+          echo "Buscando APK dentro de ./downloaded-apk..."
+          DOWNLOADED_APK_PATH=$(ls ../downloaded-apk/*.apk)
 
           if [ -z "$DOWNLOADED_APK_PATH" ]; then
             echo "❌ No se encontró ningún APK en el artifact 'maui-apk'"
@@ -192,6 +192,7 @@ jobs:
 
           echo "📦 Actualizando el repositorio F-Droid..."
           fdroid update -c
+
       
       - name: Configurar Git y hacer push de los cambios
         run: |
