@@ -175,17 +175,22 @@ jobs:
       - name: Importar APK y actualizar el repo
         working-directory: fdroid-repo
         run: |
-          # El artefacto se descarga en la raíz del workspace, en una carpeta con el mismo nombre.
-          # Usamos un glob para encontrar el archivo APK y guardamos su ruta.
-          DOWNLOADED_APK_PATH=$(ls ../maui-apk/*.apk)
-          
-          echo "Copiando $DOWNLOADED_APK_PATH al directorio del repositorio F-Droid..."
+          echo "Buscando APK dentro del artifact maui-apk..."
+          DOWNLOADED_APK_PATH=$(ls $GITHUB_WORKSPACE/maui-apk/*.apk)
+
+          if [ -z "$DOWNLOADED_APK_PATH" ]; then
+            echo "❌ No se encontró ningún APK en el artifact 'maui-apk'"
+            exit 1
+          fi
+
+          echo "✅ APK encontrado en: $DOWNLOADED_APK_PATH"
+          echo "Copiando al directorio del repositorio F-Droid..."
           cp "$DOWNLOADED_APK_PATH" ./repo/
-          
-          echo "Actualizando el repositorio F-Droid..."
-          # Decodificamos la keystore necesaria para firmar
+
+          echo "🔑 Decodificando la keystore..."
           echo "${{ secrets.ORG_ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > my-release-key.keystore
-          # La opción -c es para 'create', que creará la metadata si no existe
+
+          echo "📦 Actualizando el repositorio F-Droid..."
           fdroid update -c
       
       - name: Configurar Git y hacer push de los cambios
