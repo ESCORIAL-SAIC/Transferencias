@@ -11,6 +11,9 @@ jobs:
     name: Build Signed MAUI APK and Release
     if: github.event.pull_request.merged == true
     runs-on: windows-latest
+    outputs:
+      version: ${{ steps.versioning.outputs.version }}
+      versionCode: ${{ steps.versioning.outputs.versionCode }}
 
 
     env:
@@ -61,8 +64,7 @@ jobs:
           $newVersion = "$major.$minor.$patch"
 
           $runNumber = $env:GITHUB_RUN_NUMBER
-            $newVersionCode = $runNumber + ($major*10000) + ($minor*100) + $patch
-
+          $newVersionCode = [int]$runNumber + ([int]$major * 10000) + ([int]$minor * 100) + [int]$patch
           # Actualizar todos los PropertyGroup
           foreach ($pg in $propertyGroups) {
               $pg.ApplicationDisplayVersion = $newVersion
@@ -78,6 +80,10 @@ jobs:
 
           Write-Host "Release version: $newVersion"
           echo "version=$newVersion" >> $env:GITHUB_ENV
+          echo "versionCode=$newVersionCode" >> $env:GITHUB_ENV
+
+          echo "version=$newVersion" >> $GITHUB_OUTPUT
+          echo "versionCode=$newVersionCode" >> $GITHUB_OUTPUT
 
           # Commit y tag
           git config user.name "github-actions"
@@ -98,14 +104,19 @@ jobs:
           dotnet publish "Transferencias/Transferencias.csproj" -f net8.0-android -c Release -o $outputDir /p:AndroidPackageFormat=apk /p:AndroidKeyStore=true /p:AndroidSigningKeyStore=$keystorePath /p:AndroidSigningKeyAlias="${{ secrets.ORG_ANDROID_KEY_ALIAS }}" /p:AndroidSigningKeyPass="${{ secrets.ORG_ANDROID_KEY_PASSWORD }}" /p:AndroidSigningStorePass="${{ secrets.ORG_ANDROID_KEYSTORE_PASSWORD }}" /p:PublishTrimmed=true /p:RunAOTCompilation=true /p:EmbedAssembliesIntoApk=true
           
           $apkPath = Get-ChildItem $outputDir -Filter *.apk | Select-Object -First 1
-          echo "apk_path=$($apkPath.FullName)" >> $env:GITHUB_ENV
+
+          $newApkName = "com.escorial.transferencias-${{ env.version }}-${{ env.versionCode }}.apk"
+          $newApkPath = Join-Path $outputDir $newApkName
+          Rename-Item $apkPath.FullName $newApkPath
+
+          echo "apk_path=$newApkPath" >> $env:GITHUB_ENV
         shell: pwsh
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ env.version }}
-          name: RELEASE - ${{ env.version }}
+          name: Transferencias - ${{ env.version }}          
           body: ${{ env.version }}
           files: ${{ env.apk_path }}
           prerelease: false
@@ -126,44 +137,59 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     if: success() && github.event.pull_request.merged == true
-    
-    steps:
-      - name: Checkout del repositorio principal
-        uses: actions/checkout@v3
 
-      - name: Descargar el APK de la compilación anterior
-        uses: actions/download-artifact@v4
-        with:
-          name: maui-apk
+    steps:
+    - name: Checkout del repositorio principal
+      uses: actions/checkout@v3
+
+    - name: Descargar el APK de la compilación anterior
+      uses: actions/download-artifact@v4
+      with:
+        name: maui-apk
+        path: ./downloaded-apk   
+    
+    - name: Checkout del repositorio de F-Droid
+      uses: actions/checkout@v3
+      with:
+        repository: ESCORIAL-SAIC/fdroidrepo
+        token: ${{ secrets.ORG_FDROID_REPO_TOKEN }}
+        path: fdroid-repo
+    
+    - name: Instalar fdroidserver
+      run: sudo apt-get update && sudo apt-get install fdroidserver -y
       
-      - name: Checkout del repositorio de F-Droid
-        uses: actions/checkout@v3
-        with:
-          repository: ESCORIAL-SAIC/fdroidrepo
-          token: ${{ secrets.ORG_FDROID_REPO_TOKEN }}
-          path: fdroid-repo
-      
-      - name: Instalar fdroidserver
-        run: sudo apt-get update && sudo apt-get install fdroidserver -y
-        
-      - name: Importar APK y actualizar el repo
-        working-directory: fdroid-repo
-        run: |
-          APK_FILE=$(find ../ -name "*.apk" -print -quit)
-          
-          echo "Copiando $APK_FILE al directorio del repositorio F-Droid..."
-          cp "$APK_FILE" ./repo/
-          
-          echo "Actualizando el repositorio F-Droid..."
-          fdroid update -c
-      
-      - name: Configurar Git y hacer push de los cambios
-        run: |
-          cd fdroid-repo
-          git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
-          git add .
-          git commit -m "chore: Actualizar repositorio F-Droid con nueva versión de app"
-          git push
-        env:
-          GITHUB_TOKEN: ${{ secrets.ORG_FDROID_REPO_TOKEN }}
+    - name: Importar APK y actualizar el repo
+      working-directory: fdroid-repo
+      run: |
+        echo "Buscando APK dentro del artifact maui-apk..."
+        DOWNLOADED_APK_PATH=$(ls ../downloaded-apk/*.apk)
+
+        if [ -z "$DOWNLOADED_APK_PATH" ]; then
+          echo "❌ No se encontró ningún APK en el artifact 'maui-apk'"
+          exit 1
+        fi
+
+        echo "✅ APK encontrado en: $DOWNLOADED_APK_PATH"
+        echo "Copiando al directorio del repositorio F-Droid..."
+        cp "$DOWNLOADED_APK_PATH" ./repo/
+
+        echo "✏️ Actualizando metadata..."
+        sed -i "s/^CurrentVersionCode:.*/CurrentVersionCode: ${{ needs.build.outputs.versionCode }}/" metadata/com.escorial.transferencias.yml
+
+
+        echo "🔑 Decodificando la keystore..."
+        echo "${{ secrets.ORG_ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > my-release-key.keystore
+
+        echo "📦 Actualizando el repositorio F-Droid..."
+        fdroid update -c
+    
+    - name: Configurar Git y hacer push de los cambios
+      run: |
+        cd fdroid-repo
+        git config user.name "github-actions"
+        git config user.email "github-actions@github.com"
+        git add .
+        git commit -m "chore: Actualizar repositorio F-Droid con nueva versión de app"
+        git push
+      env:
+        GITHUB_TOKEN: ${{ secrets.ORG_FDROID_REPO_TOKEN }}
