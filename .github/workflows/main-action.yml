@@ -1,0 +1,195 @@
+name: Release MAUI APK on Main Merge
+
+on:
+  pull_request:
+    types: [closed] 
+    branches:
+      - main
+
+jobs:
+  build:
+    name: Build Signed MAUI APK and Release
+    if: github.event.pull_request.merged == true
+    runs-on: windows-latest
+    outputs:
+      version: ${{ steps.versioning.outputs.version }}
+      versionCode: ${{ steps.versioning.outputs.versionCode }}
+
+
+    env:
+      DOTNET_CLI_TELEMETRY_OPTOUT: 1
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Install MAUI workload
+        run: dotnet workload install maui
+        shell: pwsh
+
+      - name: Decode keystore from base64
+        run: |
+          $keystorePath = Join-Path $PWD "my-release-key.keystore"
+          [System.IO.File]::WriteAllBytes($keystorePath, [Convert]::FromBase64String("${{ secrets.ORG_ANDROID_KEYSTORE_BASE64 }}"))
+          Write-Host "Keystore path: $keystorePath"
+        shell: pwsh
+
+      - name: Update App Version for Release
+        id: versioning
+        run: |
+          [xml]$csproj = Get-Content "Transferencias/Transferencias.csproj"
+
+          # Buscar todos los PropertyGroup que tengan ApplicationDisplayVersion
+          $propertyGroups = $csproj.Project.PropertyGroup | Where-Object { $_.ApplicationDisplayVersion }
+          if (-not $propertyGroups) { $propertyGroups = @($csproj.Project.PropertyGroup[0]) }
+
+          # Tomar versión actual del último prerelease
+          $version = $propertyGroups[0].ApplicationDisplayVersion
+          if (-not $version) { $version = "0.1.0-dev" }
+
+          # Limpiar el -dev si existe
+          $version = $version -replace "-dev",""
+
+          $parts = $version -split '\.'
+          $major = [int]$parts[0]
+          $minor = [int]$parts[1]
+          $patch = [int]$parts[2]
+
+          # Para release no se incrementa automáticamente; solo quitar el -dev
+          $newVersion = "$major.$minor.$patch"
+
+          $runNumber = $env:GITHUB_RUN_NUMBER
+          $newVersionCode = [int]$runNumber + ([int]$major * 10000) + ([int]$minor * 100) + [int]$patch
+          # Actualizar todos los PropertyGroup
+          foreach ($pg in $propertyGroups) {
+              $pg.ApplicationDisplayVersion = $newVersion
+              $pg.ApplicationVersion = $newVersionCode
+          }
+
+
+          Write-Host "Run number: $runNumber"
+          Write-Host "New version: $newVersion"
+          Write-Host "Version code: $newVersionCode"
+
+          $csproj.Save("Transferencias/Transferencias.csproj")
+
+          Write-Host "Release version: $newVersion"
+          echo "version=$newVersion" >> $env:GITHUB_ENV
+          echo "versionCode=$newVersionCode" >> $env:GITHUB_ENV
+
+          echo "version=$newVersion" >> $GITHUB_OUTPUT
+          echo "versionCode=$newVersionCode" >> $GITHUB_OUTPUT
+
+          # Commit y tag
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add Transferencias/Transferencias.csproj
+          git commit -m "chore: release version $newVersion"
+          git tag $newVersion
+          git push origin HEAD
+          git push origin $newVersion
+        shell: pwsh
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build MAUI APK Release
+        run: |
+          $keystorePath = Join-Path $PWD "my-release-key.keystore"
+          $outputDir = Join-Path $PWD "output"
+          dotnet publish "Transferencias/Transferencias.csproj" -f net8.0-android -c Release -o $outputDir /p:AndroidPackageFormat=apk /p:AndroidKeyStore=true /p:AndroidSigningKeyStore=$keystorePath /p:AndroidSigningKeyAlias="${{ secrets.ORG_ANDROID_KEY_ALIAS }}" /p:AndroidSigningKeyPass="${{ secrets.ORG_ANDROID_KEY_PASSWORD }}" /p:AndroidSigningStorePass="${{ secrets.ORG_ANDROID_KEYSTORE_PASSWORD }}" /p:PublishTrimmed=true /p:RunAOTCompilation=true /p:EmbedAssembliesIntoApk=true
+          
+          $apkPath = Get-ChildItem $outputDir -Filter *.apk | Select-Object -First 1
+
+          $newApkName = "com.escorial.transferencias-${{ env.version }}-${{ env.versionCode }}.apk"
+          $newApkPath = Join-Path $outputDir $newApkName
+          Rename-Item $apkPath.FullName $newApkPath
+
+          echo "apk_path=$newApkPath" >> $env:GITHUB_ENV
+        shell: pwsh
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.version }}
+          name: Transferencias - ${{ env.version }}          
+          body: ${{ env.version }}
+          files: ${{ env.apk_path }}
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+
+
+      - name: Subir APK como artefacto
+        uses: actions/upload-artifact@v4
+        with:
+          name: maui-apk
+          path: ${{ env.apk_path }}
+          retention-days: 1
+          
+  fdroid-publish:
+    name: Publicar en F-Droid Repo
+    needs: build
+    runs-on: ubuntu-latest
+    if: success() && github.event.pull_request.merged == true
+
+    steps:
+    - name: Checkout del repositorio principal
+      uses: actions/checkout@v3
+
+    - name: Descargar el APK de la compilación anterior
+      uses: actions/download-artifact@v4
+      with:
+        name: maui-apk
+        path: ./downloaded-apk   
+    
+    - name: Checkout del repositorio de F-Droid
+      uses: actions/checkout@v3
+      with:
+        repository: ESCORIAL-SAIC/fdroidrepo
+        token: ${{ secrets.ORG_FDROID_REPO_TOKEN }}
+        path: fdroid-repo
+    
+    - name: Instalar fdroidserver
+      run: sudo apt-get update && sudo apt-get install fdroidserver -y
+      
+    - name: Importar APK y actualizar el repo
+      working-directory: fdroid-repo
+      run: |
+        echo "Buscando APK dentro del artifact maui-apk..."
+        DOWNLOADED_APK_PATH=$(ls ../downloaded-apk/*.apk)
+
+        if [ -z "$DOWNLOADED_APK_PATH" ]; then
+          echo "❌ No se encontró ningún APK en el artifact 'maui-apk'"
+          exit 1
+        fi
+
+        echo "✅ APK encontrado en: $DOWNLOADED_APK_PATH"
+        echo "Copiando al directorio del repositorio F-Droid..."
+        cp "$DOWNLOADED_APK_PATH" ./repo/
+
+        echo "✏️ Actualizando metadata..."
+        sed -i "s/^CurrentVersionCode:.*/CurrentVersionCode: ${{ needs.build.outputs.versionCode }}/" metadata/com.escorial.transferencias.yml
+
+
+        echo "🔑 Decodificando la keystore..."
+        echo "${{ secrets.ORG_ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > my-release-key.keystore
+
+        echo "📦 Actualizando el repositorio F-Droid..."
+        fdroid update -c
+    
+    - name: Configurar Git y hacer push de los cambios
+      run: |
+        cd fdroid-repo
+        git config user.name "github-actions"
+        git config user.email "github-actions@github.com"
+        git add .
+        git commit -m "chore: Actualizar repositorio F-Droid con nueva versión de app"
+        git push
+      env:
+        GITHUB_TOKEN: ${{ secrets.ORG_FDROID_REPO_TOKEN }}

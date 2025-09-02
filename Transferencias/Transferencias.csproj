@@ -14,6 +14,7 @@
     <!-- Versions -->
     <ApplicationDisplayVersion>1.0.1-dev</ApplicationDisplayVersion>
     <ApplicationVersion>10039</ApplicationVersion>
+
     <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">21.0</SupportedOSPlatformVersion>
     <AssemblyVersion>
     </AssemblyVersion>
@@ -25,13 +26,14 @@
     <ApplicationId>com.escorial.transferencias</ApplicationId>
     <ApplicationVersion>10039</ApplicationVersion>
     <ApplicationDisplayVersion>1.0.1-dev</ApplicationDisplayVersion>
+
     <EmbedAssembliesIntoApk>True</EmbedAssembliesIntoApk>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net8.0-android|AnyCPU'">
     <ApplicationId>com.escorial.transferencias</ApplicationId>
-    <AndroidPackageFormat>apk</AndroidPackageFormat>
-    <ApplicationVersion>10039</ApplicationVersion>
+    <AndroidPackageFormat>apk</AndroidPackageFormat>    <ApplicationVersion>10039</ApplicationVersion>
     <ApplicationDisplayVersion>1.0.1-dev</ApplicationDisplayVersion>
+
   </PropertyGroup>
   <ItemGroup>
     <!-- App Icon -->
