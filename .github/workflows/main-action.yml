@@ -15,7 +15,6 @@ jobs:
       version: ${{ steps.versioning.outputs.version }}
       versionCode: ${{ steps.versioning.outputs.versionCode }}
 
-
     env:
       DOTNET_CLI_TELEMETRY_OPTOUT: 1
 
@@ -38,6 +37,35 @@ jobs:
           [System.IO.File]::WriteAllBytes($keystorePath, [Convert]::FromBase64String("${{ secrets.ORG_ANDROID_KEYSTORE_BASE64 }}"))
           Write-Host "Keystore path: $keystorePath"
         shell: pwsh
+
+
+      - name: Increment build number
+        id: buildnum
+        run: |
+          git fetch origin main
+          git checkout main
+
+          $file = "build-number.txt"
+
+          if (Test-Path $file) {
+            $number = Get-Content $file
+            $number = [int]$number + 1
+          } else {
+            $number = 39  # valor inicial
+          }
+
+          Set-Content $file $number
+          echo "BUILD_NUMBER=$number" >> $env:GITHUB_ENV
+          echo "BUILD_NUMBER=$number" >> $GITHUB_OUTPUT
+
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add $file
+          git commit -m "chore: bump build number to $number"
+          git push origin main
+        shell: pwsh
+
+
 
       - name: Update App Version for Release
         id: versioning
@@ -63,7 +91,8 @@ jobs:
           # Para release no se incrementa automáticamente; solo quitar el -dev
           $newVersion = "$major.$minor.$patch"
 
-          $runNumber = $env:GITHUB_RUN_NUMBER
+
+          $runNumber = $env:BUILD_NUMBER
           $newVersionCode = [int]$runNumber + ([int]$major * 10000) + ([int]$minor * 100) + [int]$patch
           # Actualizar todos los PropertyGroup
           foreach ($pg in $propertyGroups) {
@@ -160,6 +189,8 @@ jobs:
       
     - name: Importar APK y actualizar el repo
       working-directory: fdroid-repo
+      env:
+        VERSION_CODE: ${{ needs.build.outputs.versionCode }}
       run: |
         echo "Buscando APK dentro del artifact maui-apk..."
         DOWNLOADED_APK_PATH=$(ls ../downloaded-apk/*.apk)
@@ -174,8 +205,8 @@ jobs:
         cp "$DOWNLOADED_APK_PATH" ./repo/
 
         echo "✏️ Actualizando metadata..."
-        sed -i "s/^CurrentVersionCode:.*/CurrentVersionCode: ${{ needs.build.outputs.versionCode }}/" metadata/com.escorial.transferencias.yml
 
+        sed -i "s/^CurrentVersionCode:.*/CurrentVersionCode: $VERSION_CODE/" metadata/com.escorial.transferencias.yml
 
         echo "🔑 Decodificando la keystore..."
         echo "${{ secrets.ORG_ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > my-release-key.keystore
