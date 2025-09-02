@@ -29,7 +29,6 @@
                             x:Name="CameraView"
                             BarCodeDetectionEnabled="True"
                             BarcodeDetected="CameraView_BarcodeDetected"
-                            CamerasLoaded="CameraView_CamerasLoaded"
                             WidthRequest="400"
                             HeightRequest="150"
                             HorizontalOptions="Center"
