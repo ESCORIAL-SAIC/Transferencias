@@ -18,6 +18,7 @@
             Margin="0,0,0,10">
             <Grid Grid.Row="0" Padding="20,10">
                 <Grid x:Name="CameraLayer"
+                    IsVisible="False"
                     HorizontalOptions="Center"
                     VerticalOptions="Center">
                     <Border
@@ -41,7 +42,7 @@
                 </Grid>
 
                 <Grid x:Name="ManualLayer"
-                    IsVisible="False"
+                    IsVisible="True"
                     HorizontalOptions="Fill"
                     VerticalOptions="Center"
                     Padding="10"
