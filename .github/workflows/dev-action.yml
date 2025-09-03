@@ -50,6 +50,32 @@ jobs:
             else if (labels.includes("bugfix")) releaseType = "bugfix";
             core.exportVariable("RELEASE_TYPE", releaseType);
 
+      - name: Increment build number
+        id: buildnum
+        run: |
+          git fetch origin main
+          git checkout main
+
+          $file = "build-number.txt"
+
+          if (Test-Path $file) {
+            $number = Get-Content $file
+            $number = [int]$number + 1
+          } else {
+            $number = 39  # valor inicial
+          }
+
+          Set-Content $file $number
+          echo "BUILD_NUMBER=$number" >> $env:GITHUB_ENV
+          echo "BUILD_NUMBER=$number" >> $GITHUB_OUTPUT
+
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add $file
+          git commit -m "chore: bump build number to $number"
+          git push origin main
+        shell: pwsh
+
       - name: Update App Version
         id: versioning
         run: |
@@ -81,7 +107,7 @@ jobs:
 
             $newVersion = "$major.$minor.$patch-dev"
 
-            $runNumber = $env:GITHUB_RUN_NUMBER
+            $runNumber = $env:BUILD_NUMBER
             $newVersionCode = [int]$runNumber + ([int]$major * 10000) + ([int]$minor * 100) + [int]$patch
 
             # Actualizar todos los PropertyGroup
