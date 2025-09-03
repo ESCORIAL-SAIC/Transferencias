@@ -189,30 +189,28 @@ jobs:
       
     - name: Importar APK y actualizar el repo
       working-directory: fdroid-repo
-      env:
-        VERSION_CODE: ${{ needs.build.outputs.versionCode }}
       run: |
-        echo "Buscando APK dentro del artifact maui-apk..."
-        DOWNLOADED_APK_PATH=$(ls ../downloaded-apk/*.apk)
+        VERSION_CODE="${{ needs.build.outputs.versionCode }}"
+        echo "🔎 VERSION_CODE=$VERSION_CODE"
 
+        DOWNLOADED_APK_PATH=$(ls ../downloaded-apk/*.apk)
         if [ -z "$DOWNLOADED_APK_PATH" ]; then
           echo "❌ No se encontró ningún APK en el artifact 'maui-apk'"
           exit 1
         fi
 
-        echo "✅ APK encontrado en: $DOWNLOADED_APK_PATH"
-        echo "Copiando al directorio del repositorio F-Droid..."
+        echo "✅ APK encontrado: $DOWNLOADED_APK_PATH"
         cp "$DOWNLOADED_APK_PATH" ./repo/
 
         echo "✏️ Actualizando metadata..."
+        sed -i "s/^CurrentVersionCode:.*/CurrentVersionCode: ${VERSION_CODE}/" metadata/com.escorial.transferencias.yml
 
-        sed -i "s/^CurrentVersionCode:.*/CurrentVersionCode: $VERSION_CODE/" metadata/com.escorial.transferencias.yml
-
-        echo "🔑 Decodificando la keystore..."
+        echo "🔑 Decodificando keystore..."
         echo "${{ secrets.ORG_ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > my-release-key.keystore
 
-        echo "📦 Actualizando el repositorio F-Droid..."
+        echo "📦 Actualizando repo F-Droid..."
         fdroid update -c
+
     
     - name: Configurar Git y hacer push de los cambios
       run: |
