@@ -12,8 +12,9 @@
     <!-- App Identifier -->
     <ApplicationId>com.escorial.transferencias</ApplicationId>
     <!-- Versions -->
-    <ApplicationDisplayVersion>0.1.9-dev</ApplicationDisplayVersion>
-    <ApplicationVersion>$([System.DateTimeOffset]::Now.ToUnixTimeSeconds())</ApplicationVersion>
+    <ApplicationDisplayVersion>1.0.1-dev</ApplicationDisplayVersion>
+    <ApplicationVersion>10039</ApplicationVersion>
+
     <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">21.0</SupportedOSPlatformVersion>
     <AssemblyVersion>
     </AssemblyVersion>
@@ -23,15 +24,16 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net8.0-android|AnyCPU'">
     <ApplicationId>com.escorial.transferencias</ApplicationId>
-    <ApplicationVersion>$([System.DateTimeOffset]::Now.ToUnixTimeSeconds())</ApplicationVersion>
-    <ApplicationDisplayVersion>0.1.9-dev</ApplicationDisplayVersion>
+    <ApplicationVersion>10039</ApplicationVersion>
+    <ApplicationDisplayVersion>1.0.1-dev</ApplicationDisplayVersion>
+
     <EmbedAssembliesIntoApk>True</EmbedAssembliesIntoApk>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net8.0-android|AnyCPU'">
     <ApplicationId>com.escorial.transferencias</ApplicationId>
-    <AndroidPackageFormat>apk</AndroidPackageFormat>
-    <ApplicationVersion>$([System.DateTimeOffset]::Now.ToUnixTimeSeconds())</ApplicationVersion>
-    <ApplicationDisplayVersion>0.1.9-dev</ApplicationDisplayVersion>
+    <AndroidPackageFormat>apk</AndroidPackageFormat>    <ApplicationVersion>10039</ApplicationVersion>
+    <ApplicationDisplayVersion>1.0.1-dev</ApplicationDisplayVersion>
+
   </PropertyGroup>
   <ItemGroup>
     <!-- App Icon -->

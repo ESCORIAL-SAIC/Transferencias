@@ -198,7 +198,7 @@ public partial class ProduccionCargaSolicitudView
     {
         ManualLayer.IsVisible = false;
         CameraLayer.IsVisible = true;
-        try { await CameraView.StartCameraAsync(); } catch { /* maneja si no hay permiso/c�mara */ }
+        try { await LoadCameras(); } catch { /* maneja si no hay permiso/c�mara */ }
     }
 
     protected override void OnAppearing()

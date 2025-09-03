@@ -27,7 +27,7 @@ public partial class AlmacenNuevaTransferenciaView
     }
 
     private async void AlmacenNuevaTransferenciaView_Appearing(object? sender, EventArgs e) => await LoadData();
-    private void CameraView_CamerasLoaded(object sender, EventArgs e) => LoadCameras();
+    private async void CameraView_CamerasLoaded(object sender, EventArgs e) => await LoadCameras();
     private void CameraView_BarcodeDetected(object sender, BarcodeEventArgs args) => OnBarcodeDetected(args);
     private async void ConfirmarButton_OnPressed(object? sender, EventArgs e) => await NewTransfer();
 
@@ -214,17 +214,28 @@ public partial class AlmacenNuevaTransferenciaView
             });
         }
     }
-    private void LoadCameras()
+    private async Task LoadCameras()
     {
-        if (CameraView is null) return;
-        if (CameraView.Cameras is null) return;
-        if (CameraView.Cameras.Count <= 0) return;
-        CameraView.Camera = CameraView.Cameras[0];
-        MainThread.BeginInvokeOnMainThread(Action);
-        async void Action()
+        try
         {
-            await CameraView.StopCameraAsync();
-            await CameraView.StartCameraAsync();
+            if (CameraView.Cameras.Count <= 0)
+                return;
+            CameraView.Camera = CameraView.Cameras[0];
+            MainThread.BeginInvokeOnMainThread(Action);
+
+            async void Action()
+            {
+                await CameraView.StopCameraAsync();
+                await CameraView.StartCameraAsync();
+            }
+        }
+        catch (Exception ex)
+        {
+            await Message.Error(this, ex.Message);
+        }
+        finally
+        {
+            Config.CloseLoadingPopup();
         }
     }
 
@@ -251,7 +262,7 @@ public partial class AlmacenNuevaTransferenciaView
     {
         ManualLayer.IsVisible = false;
         CameraLayer.IsVisible = true;
-        try { await CameraView.StartCameraAsync(); } catch { /* maneja si no hay permiso/c�mara */ }
+        try { await LoadCameras(); } catch { /* maneja si no hay permiso/c�mara */ }
     }
 
     protected override void OnAppearing()
