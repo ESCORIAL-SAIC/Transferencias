@@ -111,9 +111,6 @@ jobs:
           echo "version=$newVersion" >> $env:GITHUB_ENV
           echo "versionCode=$newVersionCode" >> $env:GITHUB_ENV
 
-          echo "version=$newVersion" >> $GITHUB_OUTPUT
-          echo "versionCode=$newVersionCode" >> $GITHUB_OUTPUT
-
           # Commit y tag
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
@@ -122,9 +119,20 @@ jobs:
           git tag $newVersion
           git push origin HEAD
           git push origin $newVersion
+
+           # Guardar en archivo temporal
+          "VERSION=$newVersion" | Out-File version-info.txt -Encoding utf8
+          "VERSION_CODE=$newVersionCode" | Out-File version-info.txt -Encoding utf8 -Append
         shell: pwsh
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Subir metadata de versión
+        uses: actions/upload-artifact@v4
+        with:
+          name: version-info
+          path: version-info.txt
+          retention-days: 1
 
       - name: Build MAUI APK Release
         run: |
@@ -176,6 +184,20 @@ jobs:
       with:
         name: maui-apk
         path: ./downloaded-apk   
+        
+    - name: Descargar metadata de versión
+      uses: actions/download-artifact@v4
+      with:
+        name: version-info
+        path: .
+
+    - name: Cargar metadata de versión en variables de entorno
+      run: |
+        cat version-info.txt
+        source version-info.txt
+        echo "VERSION=$VERSION" >> $GITHUB_ENV
+        echo "VERSION_CODE=$VERSION_CODE" >> $GITHUB_ENV
+      shell: bash
     
     - name: Checkout del repositorio de F-Droid
       uses: actions/checkout@v3
@@ -190,8 +212,7 @@ jobs:
     - name: Importar APK y actualizar el repo
       working-directory: fdroid-repo
       run: |
-        VERSION_CODE="${{ needs.build.outputs.versionCode }}"
-        echo "🔎 VERSION_CODE=$VERSION_CODE"
+        echo "🔎 VERSION_CODE=${VERSION_CODE}"
 
         DOWNLOADED_APK_PATH=$(ls ../downloaded-apk/*.apk)
         if [ -z "$DOWNLOADED_APK_PATH" ]; then
@@ -210,6 +231,7 @@ jobs:
 
         echo "📦 Actualizando repo F-Droid..."
         fdroid update -c
+
 
     
     - name: Configurar Git y hacer push de los cambios
