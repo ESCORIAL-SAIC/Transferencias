@@ -1,3 +1,4 @@
+using Bumptech.Glide.Load.Model;
 using Camera.MAUI.ZXingHelper;
 using System.Collections.ObjectModel;
 using System.Net;
@@ -19,14 +20,20 @@ public partial class ProduccionCargaSolicitudView
     public ProduccionCargaSolicitudView()
     {
         InitializeComponent();
+        Loaded += ProduccionCargaSolicitudView_Loaded;
         ItemsListView.ItemsSource = _etiquetasLeidas;
     }
 
+    private void ProduccionCargaSolicitudView_Loaded(object? sender, EventArgs e) => LoadData();
     private async void CameraView_CamerasLoaded(object sender, EventArgs e) => await LoadCameras();
     private void CameraView_BarcodeDetected(object sender, BarcodeEventArgs args) => OnBarcodeDetected(args);
     private async void ConfirmarButton_OnPressed(object? sender, EventArgs e) => await NewRequest();
     private async void EliminarSwipeItem_OnInvoked(object? sender, EventArgs e) => await MakeItemInactive(sender);
 
+    private void LoadData()
+    {
+        BarcodeEntry.Focus();
+    }
     private async Task NewRequest()
     {
         try
