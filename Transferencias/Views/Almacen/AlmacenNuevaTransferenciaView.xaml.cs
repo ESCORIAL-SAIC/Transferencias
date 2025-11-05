@@ -19,6 +19,7 @@ public partial class AlmacenNuevaTransferenciaView
     public AlmacenNuevaTransferenciaView(SolicitudTransferencia solicitudTransferencia)
     {
         InitializeComponent();
+        Loaded += AlmacenNuevaTransferenciaView_Loaded;
         var itemsFiltrados =
             new ObservableCollection<ItemSolicitudTransferencia>(solicitudTransferencia.ItemsSolicitudTransferencia!.Where(i => i.Pickeado == false));
         solicitudTransferencia.ItemsSolicitudTransferencia = itemsFiltrados;
@@ -26,11 +27,16 @@ public partial class AlmacenNuevaTransferenciaView
         Appearing += AlmacenNuevaTransferenciaView_Appearing;
     }
 
+    private void AlmacenNuevaTransferenciaView_Loaded(object? sender, EventArgs e) => LoadedView();
     private async void AlmacenNuevaTransferenciaView_Appearing(object? sender, EventArgs e) => await LoadData();
     private async void CameraView_CamerasLoaded(object sender, EventArgs e) => await LoadCameras();
     private void CameraView_BarcodeDetected(object sender, BarcodeEventArgs args) => OnBarcodeDetected(args);
     private async void ConfirmarButton_OnPressed(object? sender, EventArgs e) => await NewTransfer();
 
+    private void LoadedView()
+    {
+        BarcodeEntry.Focus();
+    }
     private async Task LoadData()
     {
         if (SolicitudTransferencia is null)
